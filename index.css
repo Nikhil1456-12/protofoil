@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #06121f;
+  color: white;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light mode styles */
+.dark body {
+  background-color: #06121f;
+  color: white;
+}
+
+body:not(.dark) {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #06121f;
+}
+
+body:not(.dark) ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0c1f30;
+  border-radius: 4px;
+}
+
+body:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0e2945;
+}
+
+body:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
