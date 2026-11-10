@@ -449,7 +449,7 @@
           JARVIS operates with <b>absolute physical and local network independence</b>. It does NOT require any USB cable connection and does NOT depend on local Wi-Fi wireless debugging (<code>adb tcpip</code> on local subnet).
         </div>
         <ul class="workflow-features">
-          <li>Encrypted peer-to-peer <b>Tailscale WireGuard Mesh</b> (Node: <code>100.98.18.16</code>).</li>
+          <li>Encrypted peer-to-peer <b>Tailscale WireGuard Mesh</b> network overlay.</li>
           <li>Functions identically whether on cellular 5G mobile data, home Wi-Fi, or remote networks.</li>
           <li>Eliminates subnet pairing failures and IP drift with deterministic node addressing.</li>
         </ul>
@@ -460,7 +460,7 @@
         <div class="workflow-tag">🐧 Linux Subsystem Bridge</div>
         <div class="workflow-title">Termux SSH Daemon & Native OS Subsystem</div>
         <div class="workflow-desc">
-          An authenticated, thread-safe <b>Termux bridge</b> runs persistently on the mobile device on Port <code>8022</code>, granting the desktop orchestrator direct execution capabilities over the phone's native Android OS.
+          An authenticated, thread-safe <b>Termux bridge</b> runs persistently on the mobile device via secure SSH daemon, granting the desktop orchestrator direct execution capabilities over the phone's native Android OS.
         </div>
         <ul class="workflow-features">
           <li>Direct invocation of <code>termux-api</code>, battery telemetry, and hardware sensors.</li>
@@ -504,7 +504,7 @@
     <div class="status-banner">
       <div class="status-pill">
         <div class="status-dot"></div>
-        <span>Tailscale Zero-Trust WireGuard Mesh Active (100.98.18.16:5555 &amp; 8022)</span>
+        <span>Tailscale Zero-Trust WireGuard Mesh Active (Encrypted P2P Tunnel)</span>
       </div>
       <div style="font-size: 13px; color: var(--muted);">
         Verified Device: <b>OnePlus Nord CE 3 Lite 5G</b> &bull; OS: <b>OxygenOS / Android 14</b>
