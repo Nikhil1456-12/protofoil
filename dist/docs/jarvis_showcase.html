@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S. — Autonomous Multimodal AI Operating System & Mobile Mesh</title>
+  <style>
+    :root {
+      --bg: #030712;
+      --card: #0b1329;
+      --card-hover: #0f1c3d;
+      --cyan: #06b6d4;
+      --cyan-bright: #22d3ee;
+      --cyan-glow: rgba(6, 182, 212, 0.45);
+      --accent: #38bdf8;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --border: #1e293b;
+      --border-glow: rgba(6, 182, 212, 0.3);
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      padding-bottom: 90px;
+    }
+    header {
+      background: radial-gradient(circle at top, #0f2744 0%, #030712 70%);
+      padding: 60px 20px 48px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--cyan-bright);
+      border: 1px solid var(--cyan);
+      border-radius: 999px;
+      margin-bottom: 18px;
+      box-shadow: 0 0 18px var(--cyan-glow);
+    }
+    h1 {
+      font-size: clamp(34px, 5.5vw, 56px);
+      letter-spacing: -1.2px;
+      color: #fff;
+      margin-bottom: 14px;
+      font-weight: 800;
+    }
+    h1 span {
+      background: linear-gradient(135deg, #fff 30%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.lead {
+      color: var(--muted);
+      max-width: 820px;
+      margin: 0 auto 24px;
+      font-size: 17.5px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1240px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+    .section-title {
+      font-size: 23px;
+      color: #fff;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .section-title span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--cyan-bright);
+      border: 1px solid var(--cyan);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    
+    /* 01: Video Card */
+    .video-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 50px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+    }
+    .video-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      border: 1px solid #1e293b;
+    }
+    video {
+      width: 100%;
+      max-height: 650px;
+      display: block;
+    }
+    .video-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .video-links a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 9px 18px;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid var(--cyan);
+      border-radius: 8px;
+      display: inline-block;
+      margin-right: 8px;
+      transition: all 0.2s ease;
+    }
+    .video-links a:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+    
+    /* 02: Gallery Grid */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      margin-bottom: 55px;
+    }
+    .photo-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .photo-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--cyan);
+      box-shadow: 0 12px 30px rgba(6, 182, 212, 0.18);
+    }
+    .photo-card img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid var(--border);
+    }
+    .photo-body {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .photo-subtitle {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--cyan-bright);
+      margin-bottom: 4px;
+    }
+    .photo-title {
+      font-size: 17.5px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .photo-desc {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    
+    /* 03: Architecture Specs */
+    .specs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      margin-bottom: 55px;
+    }
+    .spec-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 12px;
+      transition: border-color 0.2s ease;
+    }
+    .spec-item:hover {
+      border-color: var(--cyan);
+    }
+    .spec-item b {
+      color: var(--cyan-bright);
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+    .spec-item p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    
+    /* 04: Workflow & Capabilities Showcase */
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 22px;
+      margin-bottom: 40px;
+    }
+    .workflow-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      position: relative;
+      border-left: 4px solid var(--cyan);
+    }
+    .workflow-card:hover {
+      background: var(--card-hover);
+    }
+    .workflow-tag {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .workflow-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .workflow-desc {
+      font-size: 13.8px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .workflow-features {
+      list-style: none;
+    }
+    .workflow-features li {
+      font-size: 13px;
+      color: #d1d5db;
+      padding: 5px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .workflow-features li::before {
+      content: '⚡';
+      color: var(--cyan);
+      font-size: 12px;
+    }
+    
+    .status-banner {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #10b981;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge">Live Project Showcase & Telemetry</div>
+    <h1>PROJECT <span>J.A.R.V.I.S.</span></h1>
+    <p class="lead">Autonomous Multimodal AI Operating System executing local quantized SLMs (Ollama), real-time Three.js cybernetic HUD, zero-trust wireless Android device control, and multi-platform conversational execution.</p>
+  </header>
+
+  <div class="container">
+    <!-- SECTION 01: VIDEO DEMO -->
+    <h2 class="section-title"><span>01</span> Official 4K Master Demonstration Video</h2>
+    <div class="video-card">
+      <div class="video-wrapper">
+        <video controls poster="hud_main_orb.jpg">
+          <source src="../../IMG_1183.mp4" type="video/mp4">
+          <source src="D:/IMG_1183.mp4" type="video/mp4">
+          Your browser does not support HTML5 video. Please open <code>D:\IMG_1183.mp4</code> directly.
+        </video>
+      </div>
+      <div class="video-info">
+        <div>
+          <h3 style="color:#fff; font-size:18px;">Live Workstation & Mobile Telemetry Recording</h3>
+          <p style="color:var(--muted); font-size:14px; margin-top:4px;">Primary Master File: <code>D:\IMG_1183.mp4</code> (2.0 GB, 4K 60FPS) | Supplementary Takes: <code>IMG_1179.MOV</code>, <code>IMG_1185.MOV</code>, <code>IMG_1187.MOV</code></p>
+        </div>
+        <div class="video-links">
+          <a href="D:/IMG_1183.mp4" target="_blank">▶ Launch in Native Player</a>
+          <a href="https://github.com/Nikhil1456-12/Jarvis" target="_blank">View GitHub Repository ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 02: HIGH-RESOLUTION HARDWARE & HUD CAPTURES -->
+    <h2 class="section-title"><span>02</span> High-Resolution Hardware & HUD Live Captures</h2>
+    <div class="gallery">
+      <!-- Card 1 -->
+      <div class="photo-card">
+        <img src="hud_orb_demo.gif" alt="Audio-Reactive Holographic Reactor">
+        <div class="photo-body">
+          <div class="photo-subtitle">Real-Time Three.js Stark HUD</div>
+          <div class="photo-title">Neural Core: Audio-Reactive Holographic Reactor</div>
+          <div class="photo-desc">60 FPS Three.js Stark HUD featuring continuous voice activity detection (VAD), ambient acoustic listening, and dynamic audio spectrum wave modulation responding to speech.</div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="photo-card">
+        <img src="hud_main_orb.jpg" alt="Centralized Cybernetic Command Center">
+        <div class="photo-body">
+          <div class="photo-subtitle">Full-Spectrum Workstation HUD</div>
+          <div class="photo-title">Multi-Model Orchestrator & Telemetry Interface</div>
+          <div class="photo-desc">Cybernetic HUD displaying live memory telemetry, dual-GPU utilization metrics, sub-second token streaming (Ollama Qwen 2.5), and live intent routing decision graphs.</div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="photo-card">
+        <img src="whatsapp_automation.jpg" alt="Autonomous Social & Messaging Agent">
+        <div class="photo-body">
+          <div class="photo-subtitle">Hands-Free Conversational Messaging</div>
+          <div class="photo-title">Autonomous Multi-Platform Social & Messaging Agent</div>
+          <div class="photo-desc">Voice-dictated communication engine resolving contacts, composing text, and delivering messages on WhatsApp and Instagram with zero manual keyboard interaction.</div>
+        </div>
+      </div>
+
+      <!-- Card 4 (REPLACED MAP WITH LIVE DRAWER / SUBSYSTEM INTERACTION GIF) -->
+      <div class="photo-card">
+        <img src="remote_action_demo.gif" alt="Wireless Subsystem & Quick-Control Drawer Engine">
+        <div class="photo-body">
+          <div class="photo-subtitle">Sub-Second Remote Android Actuation</div>
+          <div class="photo-title">Wireless Subsystem & Quick-Control Drawer Engine</div>
+          <div class="photo-desc">Instant remote mobile hardware actuation deploying notification shades, toggling system controls (Wi-Fi, Bluetooth, Flashlight), and ingesting live push notifications over mesh.</div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="photo-card">
+        <img src="satellite_telemetry.jpg" alt="Orbital Satellite Reconnaissance & Telemetry">
+        <div class="photo-body">
+          <div class="photo-subtitle">Real-Time GPS Coordinate Mapping</div>
+          <div class="photo-title">Orbital Satellite Reconnaissance & Geospatial Telemetry</div>
+          <div class="photo-desc">Global positioning matrix rendering high-altitude orbital satellite feeds, dual-node GPS alignment, and geographic perimeter monitoring for desktop and mobile endpoints.</div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="photo-card">
+        <img src="phone_mode_control.jpg" alt="Zero-Trust Mesh Ecosystem: Desktop-to-Mobile Synchrony">
+        <div class="photo-body">
+          <div class="photo-subtitle">Distributed Multi-Surface Intelligence</div>
+          <div class="photo-title">Zero-Trust Mesh Ecosystem: Desktop-to-Mobile Synchrony</div>
+          <div class="photo-desc">Co-located workstation and smartphone operating in unified lockstep over encrypted Tailscale VPN and Termux SSH—achieving comprehensive phone mastery without physical USB cables.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 03: ARCHITECTURE SPECIFICATIONS -->
+    <h2 class="section-title"><span>03</span> Architecture Specifications & Inference Pipeline</h2>
+    <div class="specs">
+      <div class="spec-item">
+        <b>Core Orchestration Engine</b>
+        <p>FastAPI, Python 3.12, Uvicorn, Asyncio task queue, bi-directional WebSocket event bus streaming audio and telemetry at &lt;50ms latency.</p>
+      </div>
+      <div class="spec-item">
+        <b>Local LLM Inference Tier</b>
+        <p>Ollama quantized GGUF engines (Qwen 2.5 7B, Llama 3.1 8B), faster-whisper INT8 local STT, and Google Gemini Flash-Lite cloud fallback.</p>
+      </div>
+      <div class="spec-item">
+        <b>RAG & Memory Intelligence</b>
+        <p>ChromaDB vector store with HyDE query expansion, cross-encoder reranking, and rolling short-term conversational context buffers.</p>
+      </div>
+      <div class="spec-item">
+        <b>FastMCP Extensible Tool Protocol</b>
+        <p>FastMCP protocol exposing tools to Claude Desktop, Cursor, Electron, and native OS automation scripts with dynamic code synthesis.</p>
+      </div>
+    </div>
+
+    <!-- SECTION 04: HARDWARE-FREE WIRELESS ARCHITECTURE & REAL-WORLD PHONE WORKFLOW -->
+    <h2 class="section-title"><span>04</span> Hardware-Free Wireless Architecture & Mobile Control Workflow</h2>
+    <div class="workflow-grid">
+      <!-- Item 1: Zero-Cable Zero-Local-WiFi -->
+      <div class="workflow-card">
+        <div class="workflow-tag">🔒 Zero-Trust WireGuard Mesh</div>
+        <div class="workflow-title">Zero-Cable, Zero-Local-Network Dependency</div>
+        <div class="workflow-desc">
+          JARVIS operates with <b>absolute physical and local network independence</b>. It does NOT require any USB cable connection and does NOT depend on local Wi-Fi wireless debugging (<code>adb tcpip</code> on local subnet).
+        </div>
+        <ul class="workflow-features">
+          <li>Encrypted peer-to-peer <b>Tailscale WireGuard Mesh</b> network overlay.</li>
+          <li>Functions identically whether on cellular 5G mobile data, home Wi-Fi, or remote networks.</li>
+          <li>Eliminates subnet pairing failures and IP drift with deterministic node addressing.</li>
+        </ul>
+      </div>
+
+      <!-- Item 2: Termux Bridge -->
+      <div class="workflow-card">
+        <div class="workflow-tag">🐧 Linux Subsystem Bridge</div>
+        <div class="workflow-title">Termux SSH Daemon & Native OS Subsystem</div>
+        <div class="workflow-desc">
+          An authenticated, thread-safe <b>Termux bridge</b> runs persistently on the mobile device via secure SSH daemon, granting the desktop orchestrator direct execution capabilities over the phone's native Android OS.
+        </div>
+        <ul class="workflow-features">
+          <li>Direct invocation of <code>termux-api</code>, battery telemetry, and hardware sensors.</li>
+          <li>Persistent connection pool with automated watchdog and exponential backoff retry.</li>
+          <li>Full Linux utility suite enabling low-latency remote command execution.</li>
+        </ul>
+      </div>
+
+      <!-- Item 3: Autonomous Messaging -->
+      <div class="workflow-card">
+        <div class="workflow-tag">💬 Autonomous Communication Agent</div>
+        <div class="workflow-title">Multi-Platform Chat & Messaging Orchestration</div>
+        <div class="workflow-desc">
+          Execute voice-directed conversational messaging across <b>WhatsApp, Instagram, Telegram, and SMS</b> with hands-free natural voice dictation and contact resolution.
+        </div>
+        <ul class="workflow-features">
+          <li>Natural voice intent resolution (e.g. <i>"Send hi to Swaroop on WhatsApp"</i>).</li>
+          <li>Screen-grounded local OCR dynamically pinpoints recipient fields and chat bubbles.</li>
+          <li>Zero-cloud privacy: recipient names and message text never leave the local environment.</li>
+          <li>Visual proof-of-delivery confirmation before reporting command completion.</li>
+        </ul>
+      </div>
+
+      <!-- Item 4: Stealth Vision & Hardware Mastery -->
+      <div class="workflow-card">
+        <div class="workflow-tag">👁️ Computer Vision & Device Mastery</div>
+        <div class="workflow-title">Stealth Camera Capture & Hardware Mastery</div>
+        <div class="workflow-desc">
+          Total device control spanning live optical perception and physical hardware controls, operating silently while the device screen remains idle or locked.
+        </div>
+        <ul class="workflow-features">
+          <li><b>Stealth Optical Capture:</b> Triggers front and rear Camera2 snapshots/video feeds.</li>
+          <li><b>Hardware Controls:</b> Remotely toggles Wi-Fi, Bluetooth, Mobile Hotspot, and Flashlight.</li>
+          <li><b>Acoustic Control:</b> Adjusts system ringer, media volume, and triggers alarms remotely.</li>
+          <li><b>Power & Security:</b> Executes screen lock, wake triggers, and emergency power states.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Status Banner -->
+    <div class="status-banner">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span>Tailscale Zero-Trust WireGuard Mesh Active (Encrypted P2P Tunnel)</span>
+      </div>
+      <div style="font-size: 13px; color: var(--muted);">
+        Verified Device: <b>OnePlus Nord CE 3 Lite 5G</b> &bull; OS: <b>OxygenOS / Android 14</b>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

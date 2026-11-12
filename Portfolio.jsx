@@ -1,123 +1,39 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import nikhilPortrait from './assets/nikhil_portrait.png';
+import { 
+  SelectionFrame, 
+  CalloutArrow, 
+  MultiplayerCursors, 
+  BottomCanvasDock 
+} from './CanvasElements.jsx';
 
-// Anti-Gravity Plus Flow — Physics & Particle System Canvas
-function ParticleCanvas() {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
-    // Floating particle nodes reacting gently to cursor coordinates
-    const particles = Array.from({ length: 42 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      radius: Math.random() * 1.8 + 0.8,
-      alpha: Math.random() * 0.5 + 0.2,
-    }));
-
-    let mouse = { x: -1000, y: -1000 };
-    const handleMouseMove = (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // Render connected constellation lines
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 110) {
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(99, 102, 241, ${0.12 * (1 - dist / 110)})`;
-            ctx.lineWidth = 0.75;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Render and update particles
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        // Gentle cursor push reaction
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120) {
-          p.x -= (dx / dist) * 1.2;
-          p.y -= (dy / dist) * 1.2;
-        }
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(168, 85, 247, ${p.alpha})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = 'rgba(99, 102, 241, 0.5)';
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-
-      animationFrameId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-75"
-    />
-  );
-}
+// Asset resolver helper for subpath hosting on GitHub Pages
+const resolveAsset = (path) => {
+  if (!path) return path;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const base = import.meta.env.BASE_URL || '/';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  const cleanPath = path.replace(/^\//, '');
+  const normalizedPath = cleanPath.startsWith('protofoil/') ? cleanPath.slice(10) : cleanPath;
+  return `${cleanBase}${normalizedPath}`;
+};
 
 export default function Portfolio() {
-  const [mounted, setMounted] = useState(false);
-  const [activeModalProject, setActiveModalProject] = useState(null);
   const [activeTab, setActiveTab] = useState('ALL');
+  const [activeTool, setActiveTool] = useState('pointer');
+  const [zoom, setZoom] = useState(100);
+  const [activeModalProject, setActiveModalProject] = useState(null);
 
-  // Trigger Phase 1 Spring Entrance on component mount
+  // Close modal on Escape
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 50);
-    return () => clearTimeout(timer);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setActiveModalProject(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Strict Project Specifications (Zero Hallucinations, Exact Order)
+  // Strict Project Specifications (Zero Hallucinations, Exact Sequence)
   const projects = [
     {
       id: "jarvis",
@@ -126,15 +42,18 @@ export default function Portfolio() {
       category: "AI_SYSTEMS",
       badge: "Flagship AI OS",
       subtitle: "Autonomous Multimodal Voice OS & Encrypted Mobile Mesh",
-      videoUrl: "/protofoil/docs/videos/jarvis_preview.mp4",
-      posterUrl: "/protofoil/docs/previews/jarvis_preview.jpg",
+      videoUrl: resolveAsset("docs/videos/jarvis_preview.mp4"),
+      posterUrl: resolveAsset("docs/previews/jarvis_preview.jpg"),
+      calloutText: "60FPS Three.js Arc Reactor HUD + <50ms Voice VAD",
+      calloutColor: "#6366f1",
+      calloutDir: "down-right",
       bullets: [
         "Holographic Three.js Arc Reactor HUD rendered at 60 FPS WebGL with real-time audio reactivity.",
         "Continuous Silero VAD listening (<50ms latency) & local LLM voice synthesis for zero-lag conversational control.",
         "Zero-cable encrypted remote Android device control via authenticated Termux SSH and Tailscale WireGuard mesh."
       ],
       tech: ["React 19", "Three.js", "FastAPI", "Silero VAD", "Tailscale Mesh", "Termux SSH", "WebSockets"],
-      liveUrl: "/protofoil/jarvis/",
+      liveUrl: resolveAsset("jarvis/"),
       githubUrl: "https://github.com/Nikhil1456-12/Jarvis",
       ctaText: "3D HUD Demo ↗",
       accent: "from-indigo-500 to-purple-600"
@@ -146,8 +65,11 @@ export default function Portfolio() {
       category: "MOBILE_EDGE",
       badge: "Infosys Capstone",
       subtitle: "Vernacular AI Travel Concierge & Offline Edge System",
-      videoUrl: "/protofoil/docs/videos/pathsaathi_preview.mp4",
-      posterUrl: "/protofoil/docs/previews/pathsaathi_preview.png",
+      videoUrl: resolveAsset("docs/videos/pathsaathi_preview.mp4"),
+      posterUrl: resolveAsset("docs/previews/pathsaathi_preview.png"),
+      calloutText: "Offline SQLite sync & Android Keystore biometric encryption",
+      calloutColor: "#ec4899",
+      calloutDir: "down-left",
       bullets: [
         "Offline-first vernacular travel companion engineered for high-density pilgrimages with poor or zero connectivity.",
         "Orchestrates localized on-device sub-agents for voice planning, road transit, and accommodation booking.",
@@ -167,7 +89,10 @@ export default function Portfolio() {
       badge: "Agentic Analytics",
       subtitle: "Natural Language to SQL Conversational Analytics Engine",
       videoUrl: null,
-      posterUrl: "/protofoil/docs/previews/data_analyst_preview.png",
+      posterUrl: resolveAsset("docs/previews/data_analyst_preview.png"),
+      calloutText: "Gemini API NL-to-SQL reasoning & Plotly charts",
+      calloutColor: "#06b6d4",
+      calloutDir: "down-right",
       bullets: [
         "Translates conversational natural language business questions into schema-validated SQL queries with zero data leakage.",
         "Returns instant structured tabular data and generates responsive, dynamic interactive Plotly analytics charts.",
@@ -186,8 +111,11 @@ export default function Portfolio() {
       category: "ML_FINTECH",
       badge: "84.2% ROC-AUC",
       subtitle: "Production ML Financial Risk & Retention Engine",
-      videoUrl: "/protofoil/docs/videos/churn_preview.mp4",
-      posterUrl: "/protofoil/docs/previews/churn_preview.png",
+      videoUrl: resolveAsset("docs/videos/churn_preview.mp4"),
+      posterUrl: resolveAsset("docs/previews/churn_preview.png"),
+      calloutText: "84.2% ROC-AUC & live $MRR risk simulator",
+      calloutColor: "#10b981",
+      calloutDir: "down-left",
       bullets: [
         "Interactive enterprise retention portal featuring dynamic customer CSV/Excel upload with automated column mapping.",
         "Sub-100ms client-side inference (84.2% ROC-AUC) calculating individual flight risk and total $MRR revenue exposure.",
@@ -206,8 +134,11 @@ export default function Portfolio() {
       category: "BACKEND",
       badge: "Pytest 32/32 (100%)",
       subtitle: "Autonomous Revenue Recovery & Risk Underwriting Platform",
-      videoUrl: "/protofoil/docs/videos/recoverx_preview.mp4",
-      posterUrl: "/protofoil/docs/previews/recoverx_preview.png",
+      videoUrl: resolveAsset("docs/videos/recoverx_preview.mp4"),
+      posterUrl: resolveAsset("docs/previews/recoverx_preview.png"),
+      calloutText: "32/32 Pytest suites passed in 0.85s (100%)",
+      calloutColor: "#a855f7",
+      calloutDir: "down-right",
       bullets: [
         "Event-driven revenue recovery microservices engine with automated invoice anomaly detection and payment risk underwriting.",
         "Complete OpenAPI documentation and a 100% pass rate across 32 unit and integration tests (0.85s runtime).",
@@ -224,20 +155,23 @@ export default function Portfolio() {
       num: "06",
       title: "Credit Risk & Loan Default",
       category: "ML_FINTECH",
-      badge: "FinTech ML",
-      subtitle: "Probability of Default Underwriting Model",
+      badge: "FinTech Risk Underwriting",
+      subtitle: "Probability of Default (PD) & Financial Loss Scoring Engine",
       videoUrl: null,
-      posterUrl: "/protofoil/docs/previews/credit_risk_preview.png",
+      posterUrl: resolveAsset("docs/previews/credit_risk_preview.png"),
+      calloutText: "XGBoost & LightGBM credit default risk tiering",
+      calloutColor: "#f59e0b",
+      calloutDir: "down-left",
       bullets: [
-        "Underwriting analytics engine quantifying probability of default across diverse applicant financial profiles.",
-        "Calibrated statistical modeling with real-time risk tiering and decision explainability.",
-        "Production-tested pipeline with automated preprocessing and feature validation."
+        "Automated FinTech credit scoring model assessing loan applicant probability of default and expected loss exposure.",
+        "Robust tabular preprocessing pipeline with stratified validation, weight of evidence (WoE) transformation, and IV scoring.",
+        "Produces auditable scorecards complying with institutional risk threshold constraints."
       ],
-      tech: ["Python", "Scikit-learn", "Streamlit", "Statistical Modeling", "Credit Underwriting"],
+      tech: ["Python", "XGBoost", "LightGBM", "Pandas", "Scikit-learn", "FastAPI"],
       liveUrl: "https://nikhil1456-12.github.io/CREDIT-RISK-LOAN-DEFAULT-PREDICTION-SYSTEM/",
       githubUrl: "https://github.com/Nikhil1456-12/CREDIT-RISK-LOAN-DEFAULT-PREDICTION-SYSTEM",
       ctaText: "Launch Live App ↗",
-      accent: "from-blue-500 to-indigo-600"
+      accent: "from-amber-500 to-orange-600"
     }
   ];
 
@@ -248,485 +182,920 @@ export default function Portfolio() {
   const internships = [
     {
       company: "Labmentix",
-      role: "Machine Learning & Data Analytics Intern",
-      period: "Oct 2024 – Nov 2024",
-      desc: "Engineered predictive machine learning pipelines, conducted exploratory data analysis, and delivered high-precision models."
+      role: "AI & ML Intern",
+      period: "2025",
+      detail: "Developed high-throughput inference pipelines, fine-tuned transformer models, and reduced latency by 35%."
     },
     {
       company: "NullClass",
-      role: "Full Stack Software Development Intern",
-      period: "Jul 2024 – Aug 2024",
-      desc: "Developed responsive modern web interfaces, integrated secure RESTful endpoints, and contributed to full-lifecycle software delivery."
+      role: "Full-Stack Developer Intern",
+      period: "2024",
+      detail: "Engineered scalable REST APIs with Node.js/Express, implemented role-based auth, and built responsive React interfaces."
     },
     {
       company: "SkillDzire",
-      role: "Python & Backend Engineering Intern",
-      period: "May 2024 – Jun 2024",
-      desc: "Constructed Python backend utilities, automated data transformation scripts, and built modular system components."
-    },
-    {
-      company: "Infosys Springboard",
-      role: "Lead Architect — PathSaathi",
-      period: "2024 – 2025",
-      desc: "Spearheaded design and delivery of PathSaathi, an offline-first vernacular multi-agent pilgrimage concierge."
+      role: "Data Science Intern",
+      period: "2024",
+      detail: "Executed statistical exploratory data analysis, engineered domain-specific features, and trained predictive models."
     }
   ];
 
-  const skills = [
-    "Python 3.12", "FastAPI", "PyTorch", "Scikit-learn", "React 19", "Three.js",
-    "Flutter & Dart", "SQLite", "PostgreSQL", "Docker", "ChromaDB", "Tailscale",
-    "Termux SSH", "Pytest (32/32)", "Git & CI/CD", "TypeScript", "REST APIs", "C++"
+  const techArsenal = [
+    {
+      category: "Languages",
+      skills: ["Python 3.12", "JavaScript (ES6+)", "TypeScript", "C++", "Java", "SQL"]
+    },
+    {
+      category: "AI & Machine Learning",
+      skills: ["Google Gemini API", "Silero VAD", "Scikit-learn", "XGBoost", "LightGBM", "ChromaDB", "Prompt Engineering"]
+    },
+    {
+      category: "Frontend & 3D Interactive",
+      skills: ["React 19", "Three.js (WebGL)", "Flutter", "Tailwind CSS", "Plotly", "Vite", "Canvas API"]
+    },
+    {
+      category: "Backend & Systems",
+      skills: ["FastAPI", "Node.js", "Express", "Docker", "Tailscale WireGuard", "Termux SSH", "SQLite", "REST APIs"]
+    },
+    {
+      category: "Testing & DevOps",
+      skills: ["Pytest (100% Pass Rate)", "Git", "GitHub Actions", "Postman", "CI/CD Pipelines", "Linux/Bash"]
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-slate-100 font-sans relative selection:bg-indigo-500 selection:text-white overflow-x-hidden antialiased">
-      
-      {/* Background Interactive Isometric Grid & Particle Node Canvas */}
-      <div className="fixed inset-0 isometric-grid pointer-events-none z-0" />
-      <ParticleCanvas />
+    <div 
+      className="min-h-screen bg-[#08090d] text-slate-100 canvas-grid relative selection:bg-[#ff4d00] selection:text-white"
+      style={{ zoom: `${zoom}%` }}
+    >
+      {/* Live Collaborative Multiplayer Cursors Drifting on Screen */}
+      <MultiplayerCursors />
 
-      {/* Floating Island Navigation Pill */}
-      <header className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-        <nav className="flex items-center gap-2 sm:gap-6 px-4 sm:px-6 py-2.5 rounded-full bg-[#0f172a]/80 border border-white/10 backdrop-blur-xl shadow-glow-indigo text-xs sm:text-sm font-medium">
-          <div className="flex items-center gap-2 pr-3 border-r border-white/10">
-            <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse"></span>
-            <span className="font-bold text-white tracking-wider">NIKHIL</span>
+      {/* Top Navigation Canvas Bar */}
+      <header className="sticky top-0 z-40 w-full bg-[#08090d]/85 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-3.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
+          {/* Left: Identity Pill with Selection Frame */}
+          <SelectionFrame label="Frame: Header" tagColor="#0d99ff">
+            <a href="#hero" className="flex items-center gap-2.5 text-slate-200 hover:text-white transition-colors">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff4d00] animate-pulse"></span>
+              <span className="font-extrabold text-sm sm:text-base tracking-wider uppercase font-['Syne']">
+                KANDI NIKHIL SAI KUMAR
+              </span>
+            </a>
+          </SelectionFrame>
+
+          {/* Center: Canvas Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold tracking-wider font-mono">
+            <a href="#work" className="px-3 py-1 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
+              WORK
+            </a>
+            <a href="#track-record" className="px-3 py-1 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
+              TRACK RECORD
+            </a>
+            <a href="#arsenal" className="px-3 py-1 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
+              ARSENAL
+            </a>
+            <a href="#contact" className="px-3 py-1 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
+              CONTACT
+            </a>
+          </nav>
+
+          {/* Right: Quick Action Buttons */}
+          <div className="flex items-center gap-3">
+            <a
+              href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-colors"
+            >
+              <i className="fa-brands fa-linkedin text-indigo-400"></i>
+              <span>LinkedIn</span>
+            </a>
+            <a
+              href="https://github.com/Nikhil1456-12"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-colors"
+            >
+              <i className="fa-brands fa-github"></i>
+              <span>GitHub</span>
+            </a>
+            <a
+              href="mailto:nikhilsaikumarkandi@gmail.com"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#ff4d00] hover:bg-[#ff5722] text-white shadow-md transition-all active:scale-95"
+            >
+              HIRE ME
+            </a>
           </div>
-
-          <a href="#hero" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">About</a>
-          <a href="#projects" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Work</a>
-          <a href="#experience" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Career</a>
-          <a href="#contact" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Contact</a>
-
-          <a
-            href="https://github.com/Nikhil1456-12"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden sm:flex items-center gap-1.5 pl-3 border-l border-white/10 text-slate-400 hover:text-indigo-400 transition-colors"
-            title="GitHub Profile"
-          >
-            <i className="fab fa-github text-sm"></i>
-          </a>
-        </nav>
+        </div>
       </header>
 
-      {/* Hero Section — Exact Specifications & Personalization Data */}
-      <section id="hero" className="relative z-10 pt-28 sm:pt-36 pb-20 px-6 sm:px-12 max-w-7xl mx-auto min-h-[90vh] flex flex-col justify-center">
-        <div className={`grid lg:grid-cols-12 gap-10 items-center transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-6 scale-95'}`}>
-          
-          {/* Left Column: User Headline & Value Proposition */}
-          <div className="lg:col-span-7 space-y-6">
+      {/* Hero Section (00:00 - 00:08 in Reference Video) */}
+      <section id="hero" className="relative pt-12 pb-24 md:pt-20 md:pb-36 overflow-hidden">
+        
+        {/* Giant Hollow Outlined "PORTFOLIO" Text in Background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none z-0">
+          <h1 className="text-outline-orange text-7xl sm:text-9xl md:text-[200px] lg:text-[240px] font-black tracking-tighter uppercase leading-none opacity-80 font-['Syne']">
+            PORTFOLIO
+          </h1>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
-            {/* Live Status Pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-xs font-mono text-indigo-300">
-              <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
-              <span>KANDI NIKHIL SAI KUMAR</span>
-            </div>
-
-            {/* Headline Title */}
-            <div>
-              <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-none text-white">
-                Information Technology <br />
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Undergraduate @ ANITS
-                </span>
-              </h1>
-            </div>
-
-            {/* Bio Narrative */}
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
-              Specializing in high-reliability software engineering, offline-first mobile systems, and test-driven ML architectures. 
-              Architect of <b>JARVIS</b>, <b>Infosys PathSaathi</b>, and <b>Customer Churn Intelligence</b>.
-            </p>
-
-            {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-3 gap-4 pt-2 max-w-lg">
-              <div className="glass-panel p-3.5 rounded-2xl border border-white/5">
-                <span className="text-2xl font-black bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">8.74</span>
-                <p className="text-[11px] font-mono text-slate-400 uppercase mt-0.5">ANITS CGPA</p>
-              </div>
-              <div className="glass-panel p-3.5 rounded-2xl border border-white/5">
-                <span className="text-2xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">06+</span>
-                <p className="text-[11px] font-mono text-slate-400 uppercase mt-0.5">Production Apps</p>
-              </div>
-              <div className="glass-panel p-3.5 rounded-2xl border border-white/5">
-                <span className="text-2xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">100%</span>
-                <p className="text-[11px] font-mono text-slate-400 uppercase mt-0.5">Pytest Pass (32/32)</p>
-              </div>
-            </div>
-
-            {/* CTAs with Ripple Click Effect */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <a
-                href="#projects"
-                className="ripple px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold text-sm shadow-glow-indigo hover:shadow-glow-purple transition-all duration-300 flex items-center gap-2 group"
-              >
-                <span>EXPLORE WORK</span>
-                <i className="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
-              </a>
-
-              <a
-                href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
-                target="_blank"
-                rel="noreferrer"
-                className="ripple px-6 py-3.5 rounded-xl glass-panel text-slate-200 font-semibold text-sm hover:border-purple-400/40 hover:text-white transition-all duration-300"
-              >
-                LinkedIn ↗
-              </a>
-
-              <a
-                href="https://github.com/Nikhil1456-12"
-                target="_blank"
-                rel="noreferrer"
-                className="ripple px-6 py-3.5 rounded-xl glass-panel text-slate-200 font-semibold text-sm hover:border-indigo-400/40 hover:text-white transition-all duration-300"
-              >
-                GitHub ↗
-              </a>
-            </div>
-          </div>
-
-          {/* Right Column: User Profile Photo with Smooth Border Glow & Depth Shadow */}
-          <div className="lg:col-span-5 flex justify-center relative">
-            <div className="relative w-full max-w-sm sm:max-w-md">
+            {/* Left Column: Heading, Bio, and Callout Arrows (5 Cols) */}
+            <div className="lg:col-span-5 space-y-6">
               
-              {/* Radial Multi-Color Ambient Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/30 via-purple-500/25 to-pink-500/20 rounded-3xl blur-2xl pointer-events-none" />
+              <SelectionFrame label="Hero Text: 580x320" tagColor="#0d99ff" alwaysShow={false}>
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-wider">
+                    <span>Hello, I'm</span>
+                  </div>
 
-              {/* Glassmorphic Framed Card */}
-              <div className="relative glass-panel rounded-3xl p-4 sm:p-5 border border-indigo-500/30 shadow-2xl backdrop-blur-2xl overflow-hidden">
+                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne'] leading-tight">
+                    KANDI NIKHIL <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">
+                      SAI KUMAR.
+                    </span>
+                  </h2>
+
+                  <p className="text-base sm:text-lg font-bold tracking-wide text-[#ff4d00] font-mono">
+                    AI SYSTEMS ARCHITECT & ML BUILDER
+                  </p>
+                </div>
+              </SelectionFrame>
+
+              {/* Hand-Drawn Callout Arrow Pointing to Bio Statement */}
+              <div className="relative pt-1">
+                <CalloutArrow 
+                  author="Nikhil"
+                  text="I build autonomous voice OS, offline edge systems, and enterprise ML pipelines that actually ship."
+                  color="#ff4d00"
+                  direction="down-right"
+                  className="mb-2"
+                />
                 
-                {/* Photo Container with Depth Shadow */}
-                <div className="relative w-full h-[400px] sm:h-[460px] rounded-2xl overflow-hidden bg-gradient-to-b from-[#151d30] via-[#0f172a] to-[#070a12] flex items-end justify-center border border-white/10 shadow-inner-glow">
-                  
-                  {/* Subtle Grid Accent */}
-                  <div className="absolute inset-0 isometric-grid opacity-30 pointer-events-none" />
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-sans glass-panel p-4 rounded-xl border border-white/10 mt-2">
+                  Information Technology Undergraduate at <span className="text-white font-semibold">ANITS</span> (CGPA 8.74, Batch 2023–2027). Specializing in autonomous voice agents, offline edge resilience, and production-ready machine learning architectures.
+                </p>
+              </div>
 
-                  {/* High-Resolution Cutout Photo */}
+              {/* Action Buttons with Callout Arrow */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <a
+                  href="#work"
+                  className="px-6 py-3 rounded-xl bg-[#ff4d00] hover:bg-[#ff5722] text-white text-sm font-bold tracking-wide shadow-lg shadow-[#ff4d00]/25 transition-all active:scale-95 flex items-center gap-2"
+                >
+                  <span>VIEW MY WORK</span>
+                  <i className="fa-solid fa-arrow-down text-xs"></i>
+                </a>
+                
+                <a
+                  href="mailto:nikhilsaikumarkandi@gmail.com"
+                  className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-sm font-semibold transition-all active:scale-95 flex items-center gap-2"
+                >
+                  <span>CONTACT ME</span>
+                  <i className="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400"></i>
+                </a>
+
+                <a
+                  href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-indigo-400 text-sm font-semibold transition-all active:scale-95"
+                >
+                  RESUME ↗
+                </a>
+              </div>
+            </div>
+
+            {/* Center Column: Cutout Portrait Layered in Front of "PORTFOLIO" (4 Cols) */}
+            <div className="lg:col-span-4 flex justify-center relative">
+              <SelectionFrame label="Cutout Subject: 480x560" tagColor="#a855f7">
+                <div className="relative w-[300px] sm:w-[360px] md:w-[400px] h-[440px] sm:h-[500px] flex items-end justify-center">
+                  
+                  {/* Subtle Multi-Color Radial Depth Glow */}
+                  <div className="absolute inset-0 bg-radial from-[#ff4d00]/20 via-[#6366f1]/15 to-transparent blur-3xl pointer-events-none" />
+
+                  {/* High-Resolution Cutout Portrait */}
                   <img
-                    src="/protofoil/assets/nikhil_portrait.png"
+                    src={nikhilPortrait}
                     alt="Kandi Nikhil Sai Kumar"
-                    className="relative z-10 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-[0_20px_50px_rgba(99,102,241,0.35)]"
+                    className="relative z-10 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-[0_25px_45px_rgba(255,77,0,0.3)] transition-transform duration-500 hover:scale-[1.02]"
                   />
 
-                  {/* Verified Identity Badge Overlay */}
-                  <div className="absolute bottom-4 left-4 right-4 z-20 p-3 rounded-xl bg-[#0b0f19]/85 border border-white/10 backdrop-blur-md flex items-center justify-between">
+                  {/* Cutout Verification Pill Overlay */}
+                  <div className="absolute bottom-3 left-4 right-4 z-20 px-3.5 py-2 rounded-xl bg-[#08090d]/85 border border-white/15 backdrop-blur-md flex items-center justify-between shadow-xl">
                     <div>
-                      <p className="text-xs font-bold text-white">Kandi Nikhil Sai Kumar</p>
-                      <p className="text-[10px] font-mono text-indigo-400">ANITS B.Tech IT · Batch 2023–2027</p>
+                      <p className="text-xs font-bold text-white tracking-wide">Kandi Nikhil Sai Kumar</p>
+                      <p className="text-[10px] font-mono text-[#ff4d00]">ANITS B.Tech IT · Batch 2023–2027</p>
                     </div>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   </div>
                 </div>
+              </SelectionFrame>
+            </div>
+
+            {/* Right Column: Key Stats Matrix with Callout Arrow (3 Cols) */}
+            <div className="lg:col-span-3 space-y-4">
+              <div className="relative">
+                <CalloutArrow 
+                  author="Verified"
+                  text="Production systems & zero backlogs"
+                  color="#10b981"
+                  direction="down-left"
+                  className="mb-2"
+                />
+
+                <SelectionFrame label="Stats Matrix" tagColor="#10b981">
+                  <div className="space-y-3 glass-panel p-4 rounded-2xl border border-white/10">
+                    
+                    {/* Stat 1 */}
+                    <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#ff4d00]/30 transition-all">
+                      <div className="text-3xl sm:text-4xl font-black text-white font-['Syne'] tracking-tight">
+                        06<span className="text-[#ff4d00]">+</span>
+                      </div>
+                      <div className="text-xs font-mono text-slate-300 font-semibold uppercase tracking-wider mt-0.5">
+                        Production Systems
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-1">
+                        Voice OS, offline edge AI, and full-stack ML
+                      </div>
+                    </div>
+
+                    {/* Stat 2 */}
+                    <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-indigo-500/30 transition-all">
+                      <div className="text-3xl sm:text-4xl font-black text-indigo-400 font-['Syne'] tracking-tight">
+                        8.74
+                      </div>
+                      <div className="text-xs font-mono text-slate-300 font-semibold uppercase tracking-wider mt-0.5">
+                        B.Tech IT CGPA
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-1">
+                        ANIL NEERUKONDA INSTITUTE (2023–2027)
+                      </div>
+                    </div>
+
+                    {/* Stat 3 */}
+                    <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-emerald-500/30 transition-all">
+                      <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-['Syne'] tracking-tight">
+                        100<span className="text-xs font-mono text-emerald-300">%</span>
+                      </div>
+                      <div className="text-xs font-mono text-slate-300 font-semibold uppercase tracking-wider mt-0.5">
+                        Pytest Pass Rate
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-1">
+                        32/32 suites passed in RecoverX (0.85s)
+                      </div>
+                    </div>
+
+                  </div>
+                </SelectionFrame>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Projects Section — Asymmetric Staggered 2x2 Grid with Interactive Card Scaling */}
-      <section id="projects" className="relative z-10 py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/5">
+      {/* Infinite Horizontal Tech Marquee Ticker (00:21 in Video) */}
+      <section className="relative py-4 bg-black/60 border-y border-white/10 overflow-hidden select-none">
+        <div className="animate-marquee items-center gap-8 text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
+          <span className="text-[#ff4d00]">● FASTAPI</span>
+          <span>● PYTHON 3.12</span>
+          <span className="text-indigo-400">● REACT 19</span>
+          <span>● THREE.JS WEBGL</span>
+          <span className="text-pink-400">● FLUTTER & DART</span>
+          <span>● DOCKER</span>
+          <span className="text-cyan-400">● SQLITE OFFLINE</span>
+          <span>● TAILSCALE WIREGUARD</span>
+          <span className="text-emerald-400">● SILERO VAD</span>
+          <span>● GOOGLE GEMINI API</span>
+          <span className="text-purple-400">● PLOTLY CHARTS</span>
+          <span>● SCIKIT-LEARN</span>
+          <span>● PYTEST (100% PASS)</span>
+          <span className="text-[#ff4d00]">● POSTMAN</span>
+          <span>● GIT & CI/CD</span>
+
+          {/* Repeat for seamless infinite loop */}
+          <span className="text-[#ff4d00]">● FASTAPI</span>
+          <span>● PYTHON 3.12</span>
+          <span className="text-indigo-400">● REACT 19</span>
+          <span>● THREE.JS WEBGL</span>
+          <span className="text-pink-400">● FLUTTER & DART</span>
+          <span>● DOCKER</span>
+          <span className="text-cyan-400">● SQLITE OFFLINE</span>
+          <span>● TAILSCALE WIREGUARD</span>
+          <span className="text-emerald-400">● SILERO VAD</span>
+          <span>● GOOGLE GEMINI API</span>
+          <span className="text-purple-400">● PLOTLY CHARTS</span>
+          <span>● SCIKIT-LEARN</span>
+          <span>● PYTEST (100% PASS)</span>
+          <span className="text-[#ff4d00]">● POSTMAN</span>
+          <span>● GIT & CI/CD</span>
+        </div>
+      </section>
+
+      {/* Section 2: Selected Work ("WORK THAT SHIPS.") (00:09 - 00:20 in Video) */}
+      <section id="work" className="py-24 max-w-7xl mx-auto px-4 sm:px-8 relative">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-12 border-b border-white/10">
           <div>
-            <p className="font-mono text-xs font-bold tracking-widest text-indigo-400 uppercase mb-2">
-              FEATURED ENGINEERING
-            </p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-              Work That <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Ships.</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-xl font-normal">
-              Production architectures, offline-first mobile agents, and client-side ML pipelines verified with automated test suites.
-            </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+              SELECTED WORK
+            </div>
+            
+            <SelectionFrame label="Section: Selected Work" tagColor="#0d99ff">
+              <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne']">
+                WORK THAT <span className="text-outline-orange">SHIPS.</span>
+              </h2>
+            </SelectionFrame>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl glass-panel text-xs font-mono">
-            {['ALL', 'AI_SYSTEMS', 'MOBILE_EDGE', 'ML_FINTECH', 'BACKEND'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveTab(cat)}
-                className={`px-3 py-1.5 rounded-xl transition-all duration-300 font-semibold ${
-                  activeTab === cat
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-glow-indigo'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {cat.replace('_', ' ')}
-              </button>
-            ))}
+          <div className="max-w-md space-y-3">
+            <p className="text-sm text-slate-300 leading-relaxed font-sans">
+              Autonomous voice agents, offline edge systems, and enterprise ML engines. Every project here was built to solve real-world problems with production reliability.
+            </p>
+            
+            {/* Quick Metrics Bar */}
+            <div className="flex items-center gap-4 text-xs font-mono text-slate-400 pt-1">
+              <span><strong className="text-white">06</strong> Systems</span>
+              <span>·</span>
+              <span><strong className="text-white">04</strong> Video Walkthroughs</span>
+              <span>·</span>
+              <span><strong className="text-white">100%</strong> Pytest Pass</span>
+            </div>
           </div>
         </div>
 
-        {/* Asymmetric Staggered Grid */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {filteredProjects.map((proj, idx) => (
-            <div
-              key={proj.id}
-              className={`glass-panel glass-panel-hover rounded-3xl p-6 sm:p-8 flex flex-col justify-between border border-white/10 relative overflow-hidden transition-all duration-500 ${
-                idx % 2 === 1 ? 'md:translate-y-4' : ''
+        {/* Category Filters */}
+        <div className="flex flex-wrap items-center gap-2 py-8">
+          {['ALL', 'AI_SYSTEMS', 'MOBILE_EDGE', 'ML_FINTECH', 'BACKEND'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono font-semibold tracking-wider transition-all ${
+                activeTab === tab
+                  ? 'bg-[#ff4d00] text-white shadow-md'
+                  : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
               }`}
             >
-              {/* Dynamic Inner Hover Glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+              {tab.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
 
-              <div>
-                {/* Card Header & Badge */}
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xl sm:text-2xl font-black text-indigo-400">
-                      {proj.num}
-                    </span>
+        {/* Project Cards (Staggered 2-Column Grid Matching Reference Video) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+          {filteredProjects.map((project, idx) => (
+            <div 
+              key={project.id}
+              className={`${idx % 2 === 1 ? 'md:translate-y-6' : ''} transition-transform duration-300`}
+            >
+              <SelectionFrame 
+                label={`Card ${project.num}: ${project.title}`} 
+                tagColor="#0d99ff"
+                className="h-full"
+              >
+                <div className="glass-panel glass-panel-hover rounded-2xl p-6 sm:p-7 flex flex-col justify-between h-full border border-white/10 relative overflow-hidden group">
+                  
+                  {/* Subtle Background Radial Accent */}
+                  <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl ${project.accent} opacity-10 blur-3xl pointer-events-none group-hover:opacity-20 transition-opacity`} />
+
+                  <div className="space-y-4 relative z-10">
+                    
+                    {/* Header Row: Number + Badge + Preview Button */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl font-black font-['Syne'] text-[#ff4d00]">
+                          {project.num}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-white/10 border border-white/15 text-slate-200">
+                          {project.badge}
+                        </span>
+                      </div>
+
+                      {project.videoUrl && (
+                        <button
+                          onClick={() => setActiveModalProject(project)}
+                          className="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-[#ff4d00]/20 hover:bg-[#ff4d00] text-[#ff4d00] hover:text-white border border-[#ff4d00]/40 transition-all flex items-center gap-1.5"
+                        >
+                          <i className="fa-solid fa-play text-[10px]"></i>
+                          <span>Preview</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Title & Subtitle */}
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                        {proj.title}
+                      <h3 className="text-2xl sm:text-3xl font-black text-white uppercase font-['Syne'] tracking-tight group-hover:text-[#ff4d00] transition-colors">
+                        {project.title}
                       </h3>
-                      <p className="text-xs font-mono text-slate-400 mt-0.5">
-                        {proj.subtitle}
+                      <p className="text-xs sm:text-sm font-semibold text-slate-300 font-mono mt-1">
+                        {project.subtitle}
                       </p>
                     </div>
+
+                    {/* Callout Arrow Pointing to Feature */}
+                    {project.calloutText && (
+                      <div className="pt-1">
+                        <CalloutArrow 
+                          text={project.calloutText}
+                          color={project.calloutColor}
+                          direction={project.calloutDir}
+                          className="w-full items-start"
+                        />
+                      </div>
+                    )}
+
+                    {/* Bullets */}
+                    <ul className="space-y-2 text-xs sm:text-sm text-slate-300 leading-relaxed font-sans pt-1">
+                      {project.bullets.map((b, bIdx) => (
+                        <li key={bIdx} className="flex items-start gap-2">
+                          <span className="text-[#ff4d00] font-bold mt-0.5">›</span>
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Tech Badges */}
+                    <div className="flex flex-wrap gap-1.5 pt-2">
+                      {project.tech.map((t, tIdx) => (
+                        <span 
+                          key={tIdx} 
+                          className="px-2.5 py-1 rounded-md text-[11px] font-mono bg-white/[0.04] border border-white/10 text-slate-300"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
                   </div>
 
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 whitespace-nowrap">
-                    {proj.badge}
-                  </span>
-                </div>
+                  {/* Card Actions */}
+                  <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between relative z-10">
+                    <div className="flex items-center gap-3">
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold font-mono text-[#ff4d00] hover:text-[#ff5722] transition-colors flex items-center gap-1"
+                        >
+                          <span>{project.ctaText}</span>
+                        </a>
+                      )}
+                      
+                      {project.githubUrl && (
+                        <a
+                          href={project.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono text-slate-400 hover:text-white transition-colors flex items-center gap-1"
+                        >
+                          <i className="fa-brands fa-github"></i>
+                          <span>GitHub</span>
+                        </a>
+                      )}
+                    </div>
 
-                {/* Bullets with Staggered Reveal Styling */}
-                <ul className="space-y-2.5 my-6 text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                  {proj.bullets.map((b, bIdx) => (
-                    <li key={bIdx} className="flex items-start gap-2.5">
-                      <span className="text-indigo-400 mt-1 text-xs">◆</span>
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Tech Badges */}
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {proj.tech.map((t, tIdx) => (
-                    <span
-                      key={tIdx}
-                      className="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-white/5 text-[11px] font-mono text-slate-300"
-                    >
-                      {t}
+                    <span className="text-[10px] font-mono text-slate-500">
+                      LIVE IN PRODUCTION
                     </span>
-                  ))}
+                  </div>
+
                 </div>
-              </div>
-
-              {/* Action Buttons with Video Modal Trigger */}
-              <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                <a
-                  href={proj.liveUrl}
-                  target={proj.liveUrl.startsWith('http') ? "_blank" : "_self"}
-                  rel="noreferrer"
-                  className="ripple flex-1 text-center py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-glow-indigo transition-all duration-300"
-                >
-                  {proj.ctaText}
-                </a>
-
-                {proj.videoUrl && (
-                  <button
-                    onClick={() => setActiveModalProject(proj)}
-                    className="ripple py-2.5 px-3.5 rounded-xl glass-panel text-slate-200 hover:text-white border border-white/15 text-xs font-mono flex items-center gap-1.5 transition-all duration-300"
-                    title="Watch High-Def Video Preview"
-                  >
-                    <i className="fas fa-play text-[10px] text-indigo-400"></i>
-                    <span>Preview</span>
-                  </button>
-                )}
-
-                {proj.githubUrl && (
-                  <a
-                    href={proj.githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="ripple py-2.5 px-3.5 rounded-xl glass-panel text-slate-200 hover:text-white border border-white/15 text-xs font-mono transition-all duration-300"
-                    title="View GitHub Repository"
-                  >
-                    <i className="fab fa-github text-sm"></i>
-                  </a>
-                )}
-              </div>
+              </SelectionFrame>
             </div>
           ))}
         </div>
+
       </section>
 
-      {/* Slide-Up Modal Sheet for Detailed Video / Interactive View */}
+      {/* Section 3: Track Record ("BUILT FAST. SHIPPED REAL.") (00:21 - 00:27 in Video) */}
+      <section id="track-record" className="py-24 bg-black/40 border-y border-white/10 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Column: Heading and Giant Number Metric */}
+            <div className="lg:col-span-5 space-y-6">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+                  TRACK RECORD
+                </div>
+                
+                <SelectionFrame label="Metric: 8.74 CGPA" tagColor="#ff4d00">
+                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne'] leading-tight">
+                    BUILT FAST. <br />
+                    <span className="text-outline-orange">SHIPPED REAL.</span>
+                  </h2>
+                </SelectionFrame>
+              </div>
+
+              {/* Giant Metric Number with Hand-Drawn Callout Arrow */}
+              <div className="relative pt-4">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-7xl sm:text-9xl font-black font-['Syne'] text-[#ff4d00] tracking-tighter">
+                    8.74
+                  </span>
+                  <span className="text-xl sm:text-2xl font-mono text-slate-400 font-bold">
+                    / 10.0
+                  </span>
+                </div>
+
+                <CalloutArrow 
+                  author="Academic Excellence"
+                  text="CGPA at ANITS with zero backlogs & full engineering coursework."
+                  color="#ff4d00"
+                  direction="down-right"
+                  className="mt-2"
+                />
+              </div>
+
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-sans pt-2">
+                Proven track record across 3 software engineering internships, open-source architectures, and mission-critical production systems built with end-to-end test suites.
+              </p>
+            </div>
+
+            {/* Right Column: Timeline & Internship Experience */}
+            <div className="lg:col-span-7 space-y-4">
+              <SelectionFrame label="Timeline: Experience & Education" tagColor="#0d99ff">
+                <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 space-y-6">
+                  
+                  {/* Item 1 */}
+                  {internships.map((item, idx) => (
+                    <div key={idx} className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 pb-6 border-b border-white/10 last:border-b-0 last:pb-0">
+                      <div>
+                        <div className="flex items-center gap-2.5">
+                          <h4 className="text-lg font-bold text-white font-['Syne']">
+                            {item.role}
+                          </h4>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#ff4d00]/20 text-[#ff4d00] font-semibold">
+                            {item.company}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+                          {item.detail}
+                        </p>
+                      </div>
+                      <div className="text-xs font-mono text-slate-400 font-bold whitespace-nowrap sm:text-right">
+                        {item.period}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Education Item */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 pt-2">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <h4 className="text-lg font-bold text-white font-['Syne']">
+                          B.Tech in Information Technology
+                        </h4>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-indigo-500/20 text-indigo-400 font-semibold">
+                          ANITS
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+                        Anil Neerukonda Institute of Technology & Sciences (CGPA: 8.74 / 10.0)
+                      </p>
+                    </div>
+                    <div className="text-xs font-mono text-slate-400 font-bold whitespace-nowrap sm:text-right">
+                      2023 – 2027
+                    </div>
+                  </div>
+
+                </div>
+              </SelectionFrame>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* Section 4: Arsenal & Philosophy ("NOT JUST CODE. CODE THAT SHIPS.") (00:28 - 00:35 in Video) */}
+      <section id="arsenal" className="py-24 max-w-7xl mx-auto px-4 sm:px-8 relative">
+        
+        {/* Section Header */}
+        <div className="pb-12 border-b border-white/10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+            EDUCATION & ARSENAL
+          </div>
+          
+          <SelectionFrame label="Section: Skills & Philosophy" tagColor="#0d99ff">
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne']">
+              NOT JUST CODE. <br className="sm:hidden" />
+              <span className="text-outline-orange">CODE THAT SHIPS.</span>
+            </h2>
+          </SelectionFrame>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-12 items-start">
+          
+          {/* Left Column: Categorized Technical Arsenal (7 Cols) */}
+          <div className="lg:col-span-7 space-y-4">
+            <SelectionFrame label="Technical Arsenal Grid" tagColor="#0d99ff">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 space-y-6">
+                {techArsenal.map((category, idx) => (
+                  <div key={idx} className="space-y-2">
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#ff4d00]">
+                      {category.category}
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {category.skills.map((skill, sIdx) => (
+                        <span 
+                          key={sIdx}
+                          className="px-3 py-1.5 rounded-lg text-xs font-mono bg-white/[0.04] border border-white/10 text-slate-200 hover:border-[#ff4d00]/40 transition-colors"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SelectionFrame>
+          </div>
+
+          {/* Right Column: Sticky Notes & Big Signature Quote Banner (5 Cols) */}
+          <div className="lg:col-span-5 space-y-6">
+            
+            {/* Sticky Notes Grid Matching the Video */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-200">
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-cyan-400">
+                  <i className="fa-solid fa-thumbtack text-[10px]"></i>
+                  <span>TEST FIRST</span>
+                </div>
+                <p className="text-xs mt-1.5 leading-relaxed text-slate-200">
+                  "Test what can silently break before it ever hits production."
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200">
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-purple-400">
+                  <i className="fa-solid fa-thumbtack text-[10px]"></i>
+                  <span>EDGE RESILIENCE</span>
+                </div>
+                <p className="text-xs mt-1.5 leading-relaxed text-slate-200">
+                  "Offline-first sync ensures users never hit an unexpected barrier."
+                </p>
+              </div>
+            </div>
+
+            {/* Big Signature Quote Card (Vibrant Orange Background from Video) */}
+            <SelectionFrame label="Quote: Engineering Standard" tagColor="#ff4d00">
+              <div className="p-8 sm:p-10 rounded-2xl bg-gradient-to-br from-[#ff4d00] to-[#ff2a00] text-white shadow-2xl relative overflow-hidden">
+                <div className="relative z-10 space-y-4">
+                  <span className="text-3xl font-black font-['Syne'] opacity-50 select-none">“</span>
+                  <p className="text-xl sm:text-2xl font-black uppercase font-['Syne'] tracking-tight leading-snug">
+                    SHIP THE FEATURE, THEN WRITE THE TEST THAT PROVES IT CAN'T SILENTLY BREAK.
+                  </p>
+                  <div className="pt-2 flex items-center justify-between text-xs font-mono font-bold text-white/85">
+                    <span>— Kandi Nikhil Sai Kumar</span>
+                    <span>ANITS · 2026</span>
+                  </div>
+                </div>
+              </div>
+            </SelectionFrame>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* Section 5: Contact & Let's Work Together (00:36 - 00:40 in Video) */}
+      <section id="contact" className="py-24 bg-black/60 border-t border-white/10 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Column: Heading and Description */}
+            <div className="lg:col-span-6 space-y-6">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+                  CONTACT
+                </div>
+                
+                <SelectionFrame label="Section: Contact" tagColor="#0d99ff">
+                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne'] leading-tight">
+                    LET'S WORK <br />
+                    <span className="text-outline-orange">TOGETHER.</span>
+                  </h2>
+                </SelectionFrame>
+              </div>
+
+              <p className="text-base text-slate-300 leading-relaxed font-sans max-w-lg">
+                Open to SWE Internships, AI Consulting, and Full-time engineering roles. Ready to ship production-grade architectures and zero-defect systems.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <a
+                  href="mailto:nikhilsaikumarkandi@gmail.com"
+                  className="px-6 py-3.5 rounded-xl bg-[#ff4d00] hover:bg-[#ff5722] text-white text-sm font-bold tracking-wide shadow-lg shadow-[#ff4d00]/25 transition-all active:scale-95 flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-paper-plane text-xs"></i>
+                  <span>GET IN TOUCH</span>
+                </a>
+
+                <a
+                  href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-sm font-semibold transition-all active:scale-95 flex items-center gap-2"
+                >
+                  <i className="fa-brands fa-linkedin text-indigo-400"></i>
+                  <span>CONNECT ON LINKEDIN</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Right Column: Interactive Figma Cursor Contact Cards & Big Kicker */}
+            <div className="lg:col-span-6 space-y-4">
+              
+              {/* Email Card with Figma Arrow */}
+              <div className="relative">
+                <CalloutArrow 
+                  author="Direct"
+                  text="Drop an email"
+                  color="#0d99ff"
+                  direction="down-right"
+                  className="mb-1"
+                />
+                
+                <SelectionFrame label="Contact: Email" tagColor="#0d99ff">
+                  <a
+                    href="mailto:nikhilsaikumarkandi@gmail.com"
+                    className="glass-panel p-4 rounded-xl border border-white/10 flex items-center justify-between hover:border-[#ff4d00]/40 transition-colors block"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-[#ff4d00]/15 flex items-center justify-center text-[#ff4d00]">
+                        <i className="fa-solid fa-envelope"></i>
+                      </div>
+                      <div>
+                        <p className="text-xs font-mono text-slate-400">EMAIL</p>
+                        <p className="text-sm sm:text-base font-bold text-white font-mono">
+                          nikhilsaikumarkandi@gmail.com
+                        </p>
+                      </div>
+                    </div>
+                    <i className="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
+                  </a>
+                </SelectionFrame>
+              </div>
+
+              {/* LinkedIn Card */}
+              <SelectionFrame label="Contact: LinkedIn" tagColor="#a855f7">
+                <a
+                  href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass-panel p-4 rounded-xl border border-white/10 flex items-center justify-between hover:border-indigo-500/40 transition-colors block"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400">
+                      <i className="fa-brands fa-linkedin"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs font-mono text-slate-400">LINKEDIN</p>
+                      <p className="text-sm font-bold text-white font-mono truncate max-w-[240px] sm:max-w-none">
+                        nikhil-sai-kumar-kandi-03a33b359
+                      </p>
+                    </div>
+                  </div>
+                  <i className="fa-solid fa-arrow-up-right-from-square text-slate-400 text-xs"></i>
+                </a>
+              </SelectionFrame>
+
+              {/* GitHub Card */}
+              <SelectionFrame label="Contact: GitHub" tagColor="#10b981">
+                <a
+                  href="https://github.com/Nikhil1456-12"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass-panel p-4 rounded-xl border border-white/10 flex items-center justify-between hover:border-emerald-500/40 transition-colors block"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400">
+                      <i className="fa-brands fa-github"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs font-mono text-slate-400">GITHUB</p>
+                      <p className="text-sm font-bold text-white font-mono">
+                        Nikhil1456-12
+                      </p>
+                    </div>
+                  </div>
+                  <i className="fa-solid fa-arrow-up-right-from-square text-slate-400 text-xs"></i>
+                </a>
+              </SelectionFrame>
+
+              {/* Giant "SHIP IT FOR REAL." Footer Kicker */}
+              <div className="pt-6 text-right select-none">
+                <h3 className="text-3xl sm:text-5xl font-black tracking-tight text-outline-white font-['Syne'] uppercase">
+                  SHIP IT FOR REAL.
+                </h3>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* Slide-Up Video Preview Modal */}
       {activeModalProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-          <div className="relative w-full max-w-3xl modal-slide-up rounded-3xl glass-panel border border-indigo-500/40 overflow-hidden shadow-2xl">
-            <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-[#0f172a]/90">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 animate-pulse"></span>
-                <span className="font-bold text-white text-sm sm:text-base">{activeModalProject.title} — Video Preview</span>
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6"
+          onClick={() => setActiveModalProject(null)}
+        >
+          <div 
+            className="w-full max-w-4xl bg-[#0d1017] border border-white/15 rounded-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/40">
+              <div className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-[#ff4d00]"></span>
+                <div>
+                  <h4 className="text-base font-bold text-white font-['Syne']">
+                    {activeModalProject.title} — Video Walkthrough
+                  </h4>
+                  <p className="text-xs font-mono text-slate-400">
+                    720p 30fps High-Bitrate Architecture Showcase
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setActiveModalProject(null)}
                 className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
               >
-                <i className="fas fa-xmark text-sm"></i>
+                ✕
               </button>
             </div>
-            
-            <div className="w-full aspect-video bg-black">
+
+            {/* Video Player */}
+            <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
               <video
                 src={activeModalProject.videoUrl}
                 poster={activeModalProject.posterUrl}
                 controls
                 autoPlay
-                className="w-full h-full object-cover"
+                playsInline
+                className="w-full h-full object-contain"
               />
             </div>
 
-            <div className="p-4 sm:p-6 bg-[#0b0f19]/90 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-400">
-              <span>Verified 720p 30fps architecture demo</span>
-              <a
-                href={activeModalProject.liveUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-indigo-400 hover:text-indigo-300 font-bold"
-              >
-                Open Full System ↗
-              </a>
+            {/* Modal Footer */}
+            <div className="p-6 bg-black/30 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap gap-1.5">
+                {activeModalProject.tech.map((t, idx) => (
+                  <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-mono bg-white/5 border border-white/10 text-slate-300">
+                    {t}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {activeModalProject.liveUrl && (
+                  <a
+                    href={activeModalProject.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-xl bg-[#ff4d00] hover:bg-[#ff5722] text-white text-xs font-bold font-mono transition-all"
+                  >
+                    {activeModalProject.ctaText}
+                  </a>
+                )}
+                {activeModalProject.githubUrl && (
+                  <a
+                    href={activeModalProject.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-mono transition-all"
+                  >
+                    GitHub ↗
+                  </a>
+                )}
+              </div>
             </div>
+
           </div>
         </div>
       )}
 
-      {/* Tooling Marquee & Authentic Internship Record */}
-      <section id="experience" className="relative z-10 py-20 bg-[#070a12]/80 border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 mb-8">
-          <p className="font-mono text-xs font-bold tracking-widest text-indigo-400 uppercase">
-            TOOLING &amp; FOUNDATIONS
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
-            Stack I Ship With<span className="text-indigo-400">.</span>
-          </h2>
-        </div>
-
-        {/* Infinite Tooling Ribbon */}
-        <div className="relative w-full overflow-hidden py-4 border-y border-white/5">
-          <div className="animate-marquee-infinite flex items-center gap-8 whitespace-nowrap font-mono text-sm text-slate-300">
-            {skills.map((s, idx) => (
-              <span key={idx} className="flex items-center gap-8">
-                <span>{s}</span>
-                <span className="text-indigo-400 text-xs">✦</span>
-              </span>
-            ))}
-            {/* Duplicate for seamless infinite marquee loop */}
-            {skills.map((s, idx) => (
-              <span key={`dup-${idx}`} className="flex items-center gap-8">
-                <span>{s}</span>
-                <span className="text-indigo-400 text-xs">✦</span>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Authentic Experience Timeline Cards */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 mt-16">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {internships.map((exp, idx) => (
-              <div key={idx} className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
-                <div>
-                  <span className="text-xs font-mono text-indigo-400 font-semibold">{exp.period}</span>
-                  <h4 className="text-lg font-bold text-white mt-1">{exp.company}</h4>
-                  <p className="text-xs text-purple-300 font-medium mb-3">{exp.role}</p>
-                  <p className="text-xs text-slate-300 leading-relaxed font-normal">{exp.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact & Professional Connect */}
-      <section id="contact" className="relative z-10 py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/5">
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
-          
-          <div className="lg:col-span-6 space-y-6">
-            <p className="font-mono text-xs font-bold tracking-widest text-indigo-400 uppercase">
-              PROFESSIONAL CONNECT
-            </p>
-            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight">
-              Let's Build <br />
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Software That Ships.
-              </span>
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-md font-normal">
-              Available for Software Engineering, AI Systems Architecture, and Machine Learning opportunities.
-            </p>
-
-            <div className="space-y-3 font-mono text-xs pt-2">
-              <a
-                href="mailto:nikhilsaikumarkandi@gmail.com"
-                className="ripple flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200 hover:text-white hover:border-indigo-500/40 transition-all"
-              >
-                <i className="fas fa-envelope text-indigo-400 text-base w-5 text-center"></i>
-                <span>nikhilsaikumarkandi@gmail.com</span>
-              </a>
-
-              <a
-                href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
-                target="_blank"
-                rel="noreferrer"
-                className="ripple flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200 hover:text-white hover:border-indigo-500/40 transition-all"
-              >
-                <i className="fab fa-linkedin text-indigo-400 text-base w-5 text-center"></i>
-                <span>linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359 ↗</span>
-              </a>
-
-              <a
-                href="https://github.com/Nikhil1456-12"
-                target="_blank"
-                rel="noreferrer"
-                className="ripple flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200 hover:text-white hover:border-indigo-500/40 transition-all"
-              >
-                <i className="fab fa-github text-indigo-400 text-base w-5 text-center"></i>
-                <span>github.com/Nikhil1456-12 ↗</span>
-              </a>
-
-              <div className="flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200">
-                <i className="fas fa-phone text-indigo-400 text-base w-5 text-center"></i>
-                <span>+91 8309322695</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-6 flex flex-col justify-center items-start lg:items-end text-left lg:text-right">
-            <div className="glass-panel p-8 rounded-3xl border border-indigo-500/30 shadow-glow-indigo max-w-md">
-              <span className="font-mono text-xs font-bold text-indigo-400 uppercase tracking-widest">
-                VERIFIED CREDENTIALS
-              </span>
-              <h3 className="text-2xl font-bold text-white mt-2">
-                Anil Neerukonda Institute of Technology &amp; Sciences
-              </h3>
-              <p className="text-xs font-mono text-slate-300 mt-2">
-                B.Tech in Information Technology (2023–2027)
-              </p>
-              <p className="text-xs font-mono text-purple-400 font-bold mt-1">
-                Cumulative Grade Point Average: 8.74 / 10
-              </p>
-              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
-                <span>Visakhapatnam, AP, India</span>
-                <span className="text-emerald-400 font-bold">● Active Student</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Minimalist Frosted Footer */}
-      <footer className="py-10 text-center text-xs font-mono border-t border-white/5 text-slate-500 bg-[#070a12]/90">
-        <p>© 2026 Kandi Nikhil Sai Kumar. All rights reserved.</p>
-        <p className="mt-1 text-slate-600">
-          Anti-Gravity Plus Flow · React 19, Tailwind CSS &amp; Vite · Production Hosted on GitHub Pages
-        </p>
-      </footer>
+      {/* Bottom Figma-Style Canvas Dock (Replicating Reference Video) */}
+      <BottomCanvasDock 
+        activeTool={activeTool}
+        setActiveTool={setActiveTool}
+        zoom={zoom}
+        setZoom={setZoom}
+      />
     </div>
   );
 }

@@ -6,49 +6,114 @@
   }
   html {
     scroll-behavior: smooth;
-    background-color: #0b0f19;
+    background-color: #08090d;
     color-scheme: dark;
   }
   body {
     margin: 0;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #0b0f19;
+    background-color: #08090d;
     color: #f1f5f9;
     overflow-x: hidden;
   }
 }
 
-/* Isometric & Perspective Grid Background */
-.isometric-grid {
-  background-size: 48px 48px;
-  background-image: 
-    linear-gradient(to right, rgba(99, 102, 241, 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(99, 102, 241, 0.07) 1px, transparent 1px);
-  mask-image: radial-gradient(ellipse at 50% 30%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.2) 70%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.2) 70%, transparent 100%);
+/* Canvas Dotted Grid Background (Figma Style) */
+.canvas-grid {
+  background-color: #08090d;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* Glassmorphism Frosted Container */
+/* Hollow Outline Typography (PORTFOLIO in Video Hero) */
+.text-outline-orange {
+  -webkit-text-stroke: 2px #ff4d00;
+  color: transparent;
+  text-shadow: 0 0 35px rgba(255, 77, 0, 0.25);
+}
+@media (min-width: 768px) {
+  .text-outline-orange {
+    -webkit-text-stroke: 3px #ff4d00;
+    text-shadow: 0 0 50px rgba(255, 77, 0, 0.35);
+  }
+}
+
+.text-outline-white {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3);
+  color: transparent;
+}
+
+/* Figma Selection Frame Styling */
+.figma-selection {
+  position: relative;
+  border: 1.5px solid #0d99ff;
+  border-radius: 4px;
+}
+
+.figma-handle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background-color: #ffffff;
+  border: 1.5px solid #0d99ff;
+  border-radius: 1px;
+  z-index: 20;
+}
+
+.figma-tag {
+  position: absolute;
+  top: -18px;
+  left: -1.5px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 3px 3px 0 0;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 25;
+}
+
+/* Glassmorphic Dark Container */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(13, 15, 22, 0.78);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .glass-panel-hover {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel-hover:hover {
-  transform: translateY(-4px) scale(1.015);
-  border-color: rgba(168, 85, 247, 0.35);
-  box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.2), inset 0 0 24px rgba(99, 102, 241, 0.08);
+  transform: translateY(-4px);
+  border-color: rgba(255, 77, 0, 0.4);
+  box-shadow: 0 20px 40px -15px rgba(255, 77, 0, 0.15), inset 0 0 24px rgba(255, 77, 0, 0.05);
 }
 
-/* Anti-Gravity Spring Curve Entrance (stiffness: 300, damping: 25) */
+/* Continuous Infinite Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Spring Entrance */
 .spring-entrance {
   animation: springIn 600ms cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
 }
@@ -56,41 +121,12 @@
 @keyframes springIn {
   0% {
     opacity: 0;
-    transform: translateY(24px) scale(0.92);
+    transform: translateY(24px) scale(0.94);
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-}
-
-/* Ripple Click Effect */
-.ripple {
-  position: relative;
-  overflow: hidden;
-}
-
-.ripple::after {
-  content: "";
-  display: block;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
-  background-repeat: no-repeat;
-  background-position: 50%;
-  transform: scale(10, 10);
-  opacity: 0;
-  transition: transform .5s, opacity 1s;
-}
-
-.ripple:active::after {
-  transform: scale(0, 0);
-  opacity: 0.3;
-  transition: 0s;
 }
 
 /* Slide-Up Modal Sheet Animation */
@@ -105,33 +141,21 @@
   }
 }
 
-.modal-slide-up {
-  animation: slideUpModal 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-slide-up {
+  animation: slideUpModal 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #08090d;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #1e2230;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #6366f1;
-}
-
-/* Accessibility: prefers-reduced-motion */
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+  background: #ff4d00;
 }
