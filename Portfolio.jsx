@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 // The 12 Collaborative AI Builder Agents from the Video
 const AGENTS = {
@@ -479,11 +479,11 @@ export default function Portfolio() {
         </nav>
       </header>
 
-      {/* Hero Section */}
-      <section id="home" className="relative pt-28 sm:pt-36 pb-20 px-6 sm:px-12 max-w-7xl mx-auto min-h-[92vh] flex flex-col justify-between">
+      {/* Hero Section (Exact Layout & Visual Balance from Reel 00:02 - 00:08) */}
+      <section id="home" className="relative pt-24 sm:pt-32 pb-16 px-6 sm:px-12 max-w-7xl mx-auto min-h-[92vh] flex flex-col justify-between">
         
         {/* Giant Typographic Backdrop: "PORTFOLIO" with Typevert Bounding Box */}
-        <div className="absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 w-full text-center pointer-events-none select-none z-0">
+        <div className="absolute top-14 sm:top-18 left-1/2 -translate-x-1/2 w-full text-center pointer-events-none select-none z-0">
           <div className="relative inline-block">
             {/* Typevert Connecting Bounding Box from Reel Frame 02 */}
             <div className="absolute -top-3 -left-3 -right-3 -bottom-3 border border-blue-500/40 rounded-lg pointer-events-none">
@@ -497,14 +497,14 @@ export default function Portfolio() {
               <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-white border border-blue-500" />
             </div>
 
-            <h1 className="font-display text-[20vw] sm:text-[18vw] leading-none font-black text-[#FF4D2E]/15 tracking-tighter uppercase blur-[0.5px]">
+            <h1 className="font-display text-[22vw] sm:text-[19vw] leading-none font-black text-[#FF4D2E]/20 tracking-tighter uppercase blur-[0.5px]">
               PORTFOLIO
             </h1>
           </div>
         </div>
 
         {/* Hero Main Content */}
-        <div className="relative z-10 grid lg:grid-cols-12 gap-8 items-center pt-8">
+        <div className="relative z-10 grid lg:grid-cols-12 gap-8 items-end pt-6">
           
           {/* Left Column: Greeting, Name, Role, Bio & CTAs */}
           <div className="lg:col-span-5 space-y-4">
@@ -513,11 +513,11 @@ export default function Portfolio() {
               <span>AVAILABLE FOR OPPORTUNITIES</span>
             </div>
 
-            <p className="font-mono text-sm tracking-widest text-slate-400 uppercase">
+            <p className="font-handwriting text-2xl sm:text-3xl text-slate-300 font-bold tracking-wide">
               Hello, I'm
             </p>
 
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none text-white">
+            <h1 className="font-display text-5xl sm:text-7xl font-black tracking-tight leading-none text-white uppercase">
               NIKHIL <br />
               <span className="text-white">SAI KUMAR KANDI.</span>
             </h1>
@@ -529,7 +529,7 @@ export default function Portfolio() {
                   <i className="fas fa-terminal text-[8px]"></i>
                   <span>Role · active</span>
                 </div>
-                <h2 className="text-lg sm:text-xl font-extrabold tracking-wide text-[#FF4D2E] uppercase">
+                <h2 className="font-display text-xl sm:text-2xl font-bold tracking-wide text-[#FF4D2E] uppercase">
                   AI SYSTEMS &amp; SOFTWARE ENGINEER
                 </h2>
               </div>
@@ -538,7 +538,7 @@ export default function Portfolio() {
             {/* Live Typed Bio Paragraph */}
             <AgenticTextLine
               agent={AGENTS.comp}
-              fullText="B.Tech Information Technology student at ANITS (CGPA: 8.74). I build autonomous voice AI engines, offline-first vernacular mobile architectures, and high-reliability ML systems that actually ship."
+              fullText="I build autonomous voice AI engines, offline-first vernacular mobile apps, and high-reliability ML systems that actually ship. Information Technology student at ANITS (CGPA 8.74)."
               dimension="480 × 58"
               delay={300}
               speed={15}
@@ -550,7 +550,7 @@ export default function Portfolio() {
               <div className="flex flex-wrap items-center gap-4">
                 <a
                   href="#work"
-                  className="px-6 py-3 rounded-xl bg-[#FF4D2E] text-white font-bold text-sm hover:bg-[#ff3e1d] transition-all shadow-lg shadow-[#FF4D2E]/25 hover:shadow-[#FF4D2E]/40 flex items-center gap-2 group"
+                  className="px-7 py-3.5 rounded-xl bg-[#FF4D2E] text-white font-bold text-sm hover:bg-[#ff3e1d] transition-all shadow-lg shadow-[#FF4D2E]/25 hover:shadow-[#FF4D2E]/40 flex items-center gap-2 group"
                 >
                   <span>VIEW WORK</span>
                   <i className="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
@@ -560,7 +560,7 @@ export default function Portfolio() {
                   href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
+                  className="px-5 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
                 >
                   LinkedIn ↗
                 </a>
@@ -569,7 +569,7 @@ export default function Portfolio() {
                   href="https://github.com/Nikhil1456-12"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
+                  className="px-5 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
                 >
                   GitHub ↗
                 </a>
@@ -585,85 +585,55 @@ export default function Portfolio() {
             </div>
 
             <p className="font-mono text-[11px] text-slate-500 pt-3">
-              BASED IN VISAKHAPATNAM, INDIA · OPEN TO INTERNSHIPS &amp; FULL-TIME ROLES
+              BASED IN VISAKHAPATNAM, INDIA · OPEN TO OPPORTUNITIES
             </p>
           </div>
 
-          {/* Center Column: Cutout / Developer Card with Agent Inspection Box */}
-          <div className="lg:col-span-4 flex justify-center relative">
-            <div className="relative w-full max-w-sm">
+          {/* Center Column: Nikhil's Real Cutout Portrait with Agent Cursors (Exact from Reel 00:03 - 00:07) */}
+          <div className="lg:col-span-4 flex justify-center relative select-none">
+            <div className="relative w-full max-w-sm sm:max-w-md h-[420px] sm:h-[500px] flex items-end justify-center">
               
-              {/* Agent Inspection Bounding Box Frame (Simulating Figma / Canvas Live Agent Selection) */}
-              <div className="relative rounded-2xl border-2 border-[#FF4D2E]/50 p-3 bg-gradient-to-b from-[#18181f]/80 to-[#0e0e13]/90 shadow-2xl backdrop-blur-md">
-                
-                {/* Agent Tag Badges on the Bounding Box */}
-                <div className="absolute -top-3 left-4 px-2 py-0.5 rounded bg-[#FF4D2E] text-white text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 shadow">
-                  <i className="fas fa-microchip text-[9px]"></i>
-                  <span>Agent: Architect</span>
-                </div>
-                <div className="absolute -bottom-3 right-4 px-2 py-0.5 rounded bg-emerald-500 text-black text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 shadow">
-                  <i className="fas fa-check text-[9px]"></i>
-                  <span>Status: Verified</span>
-                </div>
+              {/* Backlight Flame Aura */}
+              <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#FF4D2E]/25 to-transparent blur-3xl pointer-events-none" />
 
-                {/* Developer Persona Display */}
-                <div className="h-80 sm:h-96 w-full rounded-xl bg-gradient-to-b from-[#221a1f] via-[#15151c] to-[#0a0a0e] relative overflow-hidden flex flex-col justify-end p-6 border border-white/5">
-                  
-                  {/* Subtle Background Radial Aura */}
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#FF4D2E]/20 via-transparent to-transparent pointer-events-none" />
+              {/* Nikhil's Real Cutout Portrait */}
+              <img
+                src="/protofoil/assets/nikhil_portrait.png"
+                alt="Nikhil Sai Kumar Kandi"
+                className="relative z-10 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-[0_15px_45px_rgba(255,77,46,0.22)]"
+              />
 
-                  {/* High-tech HUD Ring Graphics */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-[#FF4D2E]/20 animate-spin" style={{ animationDuration: '40s' }} />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full border border-dashed border-cyan-500/20 animate-spin" style={{ animationDuration: '25s' }} />
+              {/* Floating Multi-Agent Cursors Anchored Directly on the Portrait (from Reel 00:03 - 00:07) */}
+              <div className="absolute top-28 left-4 z-20 px-2 py-0.5 rounded bg-[#FF4D2E] text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="#FFF" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+                <span>Deploy</span>
+              </div>
 
-                  {/* Multi-Agent Floating Tags Over Developer Card (from Reel Frame 04) */}
-                  <div className="absolute top-6 left-6 px-2 py-0.5 rounded bg-orange-500 text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow">
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="#FFF"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-                    <span>Deploy</span>
-                  </div>
-                  <div className="absolute top-12 right-6 px-2 py-0.5 rounded bg-amber-400 text-black text-[9px] font-mono font-bold flex items-center gap-1 shadow">
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="#000"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-                    <span>Palette</span>
-                  </div>
+              <div className="absolute top-40 right-4 z-20 px-2 py-0.5 rounded bg-[#F59E0B] text-black text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="#000" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+                <span>Palette</span>
+              </div>
 
-                  {/* Developer Code Terminal HUD */}
-                  <div className="relative z-10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-black/60 border border-white/10 font-mono text-[11px] text-cyan-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                      <span>system.profile: initialized</span>
-                    </div>
+              <div className="absolute bottom-24 left-6 z-20 px-2 py-0.5 rounded bg-[#EC4899] text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="#FFF" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+                <span>Review</span>
+              </div>
 
-                    <h3 className="text-xl font-bold text-white tracking-tight">
-                      Nikhil Sai Kumar Kandi
-                    </h3>
-
-                    <p className="text-xs font-mono text-slate-300">
-                      B.Tech Information Technology
-                    </p>
-                    <p className="text-xs font-mono text-[#FF4D2E]">
-                      ANITS (CGPA 8.74) · 2023–2027
-                    </p>
-
-                    <div className="pt-2 flex flex-wrap gap-1.5 font-mono text-[10px]">
-                      <span className="px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/5">Python</span>
-                      <span className="px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/5">FastAPI</span>
-                      <span className="px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/5">Three.js</span>
-                      <span className="px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/5">Flutter</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="absolute bottom-20 right-8 z-20 px-2 py-0.5 rounded bg-[#8B5CF6] text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="#FFF" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+                <span>Comp</span>
               </div>
             </div>
           </div>
 
           {/* Right Column: Stacked High-Impact Stats */}
-          <div className="lg:col-span-3 flex lg:flex-col justify-between sm:justify-start gap-6 lg:gap-8">
+          <div className="lg:col-span-3 flex lg:flex-col justify-between sm:justify-start gap-6 lg:gap-8 pb-4">
             <div className="border-l-2 border-[#FF4D2E] pl-4">
               <div className="font-display text-4xl sm:text-5xl font-black text-white leading-none">
                 06<span className="text-[#FF4D2E]">.</span>
               </div>
               <p className="font-mono text-xs text-slate-400 mt-1 uppercase tracking-wider">
-                Production Projects
+                Projects Shipped
               </p>
             </div>
 
@@ -697,7 +667,7 @@ export default function Portfolio() {
         </div>
 
         {/* Hero Bottom Banner Indicator */}
-        <div className="relative z-10 pt-12 pb-4 flex items-center justify-between text-xs font-mono text-slate-500 border-t border-white/5">
+        <div className="relative z-10 pt-8 pb-4 flex items-center justify-between text-xs font-mono text-slate-500 border-t border-white/5">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>LIVE ENVIRONMENT · ACTIONS &amp; FLOW ACTIVE</span>
@@ -716,13 +686,13 @@ export default function Portfolio() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 pb-8 border-b border-white/10">
           <div>
             <p className="font-mono text-xs font-bold text-[#FF4D2E] tracking-widest uppercase mb-2">
-              ENGINEERED &amp; DEPLOYED
+              SELECTED WORK
             </p>
             <h2 className="font-display text-5xl sm:text-7xl font-black tracking-tight leading-none uppercase text-white">
               WORK THAT <span className="text-[#FF4D2E]">SHIPS.</span>
             </h2>
             <p className="text-slate-400 text-sm sm:text-base mt-3 max-w-xl">
-              Every project here went from a brief to something real people open and use. Tested architectures, video demos, and verified codebases.
+              Production systems, offline-first mobile agents, and client-side ML. Every project here went from a brief to something real people open and use.
             </p>
           </div>
 
