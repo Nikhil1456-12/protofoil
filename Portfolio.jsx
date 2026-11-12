@@ -23,6 +23,7 @@ export default function Portfolio() {
       title: "PathSaathi",
       subtitle: "Vernacular AI Travel Concierge & Offline Mobile System",
       badge: "Infosys Major Project",
+      video: "/protofoil/docs/videos/pathsaathi_preview.mp4",
       preview: "/protofoil/docs/previews/pathsaathi_preview.png",
       tech: "Flutter • Multi-Agent System • SQLite • Edge AI",
       desc: "Offline-first vernacular travel companion for high-density pilgrimages with poor or zero network connectivity. Orchestrates on-device sub-agents for voice interaction, road routing, transit, and accommodation with hardware-backed biometric encryption.",
@@ -34,6 +35,7 @@ export default function Portfolio() {
       title: "JARVIS",
       subtitle: "Autonomous Multimodal AI OS & Encrypted Mobile Mesh",
       badge: "Hardware & AI",
+      video: "/protofoil/docs/videos/jarvis_preview.mp4",
       preview: "/protofoil/docs/previews/jarvis_preview.jpg",
       tech: "FastAPI • React • Three.js • Termux SSH • WireGuard Mesh",
       desc: "Voice-driven operating system with a 60 FPS Three.js holographic Arc Reactor HUD, continuous VAD listening (<50ms), and zero-cable encrypted remote Android device control via authenticated Termux SSH and Tailscale WireGuard.",
@@ -45,6 +47,7 @@ export default function Portfolio() {
       title: "Customer Churn Intelligence Portal",
       subtitle: "Client-Side ML Scoring & Financial Risk App",
       badge: "Production App",
+      video: "/protofoil/docs/videos/churn_preview.mp4",
       preview: "/protofoil/docs/previews/churn_preview.png",
       tech: "Python • Scikit-learn • Plotly • Modern JavaScript",
       desc: "Interactive retention portal featuring dynamic customer CSV/Excel upload, automated column mapping, sub-100ms batch scoring (84.2% ROC-AUC), $MRR flight risk revenue exposure calculation, and What-If scenario simulations.",
@@ -56,7 +59,8 @@ export default function Portfolio() {
       title: "RecoverX",
       subtitle: "Autonomous Revenue Recovery & Risk Underwriting Platform",
       badge: "100% Test Pass (32/32)",
-      preview: null,
+      video: "/protofoil/docs/videos/recoverx_preview.mp4",
+      preview: "/protofoil/docs/previews/recoverx_preview.png",
       tech: "FastAPI • Python 3.12 • Docker • Microservices • Pytest",
       desc: "Event-driven revenue recovery microservices engine with automated invoice anomaly detection, payment risk scoring, and dispute triage. Backed by complete OpenAPI documentation and a 100% pass rate across 32 unit and integration tests.",
       liveUrl: "https://nikhil1456-12.github.io/RecoverX/",
@@ -67,6 +71,7 @@ export default function Portfolio() {
       title: "AI-Powered Data Analyst",
       subtitle: "Natural Language to SQL Conversational Engine",
       badge: "Agentic AI",
+      video: null,
       preview: null,
       tech: "Node.js • Express • React 19 • Gemini API • Docker",
       desc: "Translates conversational business questions into schema-validated SQL queries with zero data leakage, returning structured tabular analytics and interactive dynamic Plotly charts.",
@@ -78,6 +83,7 @@ export default function Portfolio() {
       title: "Credit Risk & Loan Default Prediction",
       subtitle: "Probability of Default Underwriting Model",
       badge: "FinTech ML",
+      video: null,
       preview: null,
       tech: "Python • Scikit-learn • Streamlit • Statistical Modeling",
       desc: "Underwriting analytics engine quantifying probability of default across diverse applicant financial profiles with calibrated statistical modeling and real-time risk classification.",
@@ -239,7 +245,7 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Featured Projects Section */}
+      {/* Featured Projects Section with Real Video Previews */}
       <section id="projects" className="px-6 md:px-16 py-20">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12">
@@ -247,48 +253,66 @@ export default function Portfolio() {
               Featured Projects
             </h2>
             <p className={`mt-2 text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Real production applications, distributed architectures, and verified deployments.
+              Real production applications with automated video previews, distributed architectures, and verified deployments.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-10">
             {projects.map((proj, idx) => (
               <div
                 key={idx}
-                className={`group flex flex-col justify-between rounded-2xl border overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${isDarkMode ? 'bg-[#081826] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-cyan-600'}`}
+                className={`group flex flex-col justify-between rounded-2xl border overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-2xl ${isDarkMode ? 'bg-[#081826] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-cyan-600'}`}
               >
-                {proj.preview ? (
-                  <div className="w-full h-48 overflow-hidden bg-slate-950 relative border-b border-slate-800">
+                {proj.video ? (
+                  <div className="w-full h-64 sm:h-72 overflow-hidden bg-slate-950 relative border-b border-slate-800">
+                    <video 
+                      src={proj.video} 
+                      poster={proj.preview}
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" 
+                    />
+                    <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/85 border border-cyan-500/30 backdrop-blur-md">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span className="text-xs font-bold text-cyan-300">
+                        {proj.badge}
+                      </span>
+                    </div>
+                  </div>
+                ) : proj.preview ? (
+                  <div className="w-full h-64 sm:h-72 overflow-hidden bg-slate-950 relative border-b border-slate-800">
                     <img 
                       src={proj.preview} 
                       alt={proj.title} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" 
                       loading="lazy" 
                     />
-                    <div className="absolute top-3 right-3">
-                      <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-slate-950/80 text-cyan-400 border border-cyan-500/30 backdrop-blur-sm">
+                    <div className="absolute top-4 right-4">
+                      <span className="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-950/80 text-cyan-400 border border-cyan-500/30 backdrop-blur-sm">
                         {proj.badge}
                       </span>
                     </div>
                   </div>
                 ) : (
-                  <div className="px-7 pt-6 pb-2">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-cyan-950/40 text-cyan-400 border border-cyan-500/20">
+                  <div className="px-8 pt-6 pb-2">
+                    <span className="text-xs font-bold px-3 py-1.5 rounded-lg bg-cyan-950/40 text-cyan-400 border border-cyan-500/20">
                       {proj.badge}
                     </span>
                   </div>
                 )}
 
-                <div className="p-7 flex-1 flex flex-col justify-between">
+                <div className="p-8 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-xl font-bold mb-1 tracking-tight">
+                    <h3 className="text-2xl font-bold mb-1 tracking-tight">
                       {proj.title}
                     </h3>
-                    <p className="text-xs text-cyan-400 font-medium mb-3">
+                    <p className="text-sm text-cyan-400 font-medium mb-4">
                       {proj.subtitle}
                     </p>
 
-                    <p className={`text-xs font-mono mb-4 px-2.5 py-1.5 rounded-lg ${isDarkMode ? 'bg-[#050f1a] text-cyan-300' : 'bg-slate-100 text-cyan-700'}`}>
+                    <p className={`text-xs font-mono mb-4 px-3 py-2 rounded-lg ${isDarkMode ? 'bg-[#050f1a] text-cyan-300 border border-slate-800' : 'bg-slate-100 text-cyan-700'}`}>
                       {proj.tech}
                     </p>
 
@@ -297,12 +321,12 @@ export default function Portfolio() {
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-800">
+                  <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-800">
                     <a
                       href={proj.liveUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex-1 text-center text-xs font-bold px-4 py-2.5 bg-cyan-400 text-slate-950 rounded-lg hover:bg-cyan-300 transition-colors duration-150"
+                      className="flex-1 text-center text-sm font-bold px-5 py-3 bg-cyan-400 text-slate-950 rounded-xl hover:bg-cyan-300 transition-colors duration-150 shadow-md"
                     >
                       {proj.primaryText}
                     </a>
@@ -311,7 +335,7 @@ export default function Portfolio() {
                         href={proj.githubUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className={`text-center text-xs font-bold px-3 py-2.5 border rounded-lg transition-colors duration-150 ${isDarkMode ? 'border-slate-700 text-slate-200 hover:border-cyan-400' : 'border-slate-300 text-slate-700 hover:border-slate-800'}`}
+                        className={`text-center text-sm font-bold px-4 py-3 border rounded-xl transition-colors duration-150 ${isDarkMode ? 'border-slate-700 text-slate-200 hover:border-cyan-400' : 'border-slate-300 text-slate-700 hover:border-slate-800'}`}
                         title="GitHub Repository"
                       >
                         <i className="fab fa-github"></i>
