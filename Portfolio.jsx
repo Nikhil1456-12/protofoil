@@ -3,7 +3,7 @@ import nikhilPortrait from './assets/nikhil_portrait.png';
 import { 
   SelectionFrame, 
   CalloutArrow, 
-  MultiplayerCursors, 
+  SwarmRebuildCursors, 
   BottomCanvasDock 
 } from './CanvasElements.jsx';
 
@@ -20,9 +20,59 @@ const resolveAsset = (path) => {
 
 export default function Portfolio() {
   const [activeTab, setActiveTab] = useState('ALL');
-  const [activeTool, setActiveTool] = useState('pointer');
-  const [zoom, setZoom] = useState(100);
   const [activeModalProject, setActiveModalProject] = useState(null);
+
+  // Swarm Rebuild State Machine
+  const [activeStep, setActiveStep] = useState(0);
+  const [isRebuilding, setIsRebuilding] = useState(true);
+  const totalSteps = 8;
+  const rebuildTimerRef = useRef(null);
+
+  // Auto-Scroll Sections corresponding to steps
+  const stepSectionMap = {
+    0: 'hero',
+    1: 'hero',
+    2: 'hero',
+    3: 'work',
+    4: 'work',
+    5: 'track-record',
+    6: 'arsenal',
+    7: 'contact'
+  };
+
+  // Swarm Rebuild Runner Effect
+  useEffect(() => {
+    if (!isRebuilding) return;
+
+    rebuildTimerRef.current = setTimeout(() => {
+      setActiveStep(prev => {
+        const next = prev + 1;
+        if (next < totalSteps) {
+          const targetSection = stepSectionMap[next];
+          const el = document.getElementById(targetSection);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return next;
+        } else {
+          setIsRebuilding(false);
+          return prev;
+        }
+      });
+    }, 2800);
+
+    return () => clearTimeout(rebuildTimerRef.current);
+  }, [activeStep, isRebuilding]);
+
+  const handleReplay = () => {
+    setActiveStep(0);
+    setIsRebuilding(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTogglePlayPause = () => {
+    setIsRebuilding(prev => !prev);
+  };
 
   // Close modal on Escape
   useEffect(() => {
@@ -45,6 +95,7 @@ export default function Portfolio() {
       videoUrl: resolveAsset("docs/videos/jarvis_preview.mp4"),
       posterUrl: resolveAsset("docs/previews/jarvis_preview.jpg"),
       calloutText: "60FPS Three.js Arc Reactor HUD + <50ms Voice VAD",
+      calloutAuthor: "Agent: Dev",
       calloutColor: "#6366f1",
       calloutDir: "down-right",
       bullets: [
@@ -68,6 +119,7 @@ export default function Portfolio() {
       videoUrl: resolveAsset("docs/videos/pathsaathi_preview.mp4"),
       posterUrl: resolveAsset("docs/previews/pathsaathi_preview.png"),
       calloutText: "Offline SQLite sync & Android Keystore biometric encryption",
+      calloutAuthor: "Agent: Priya",
       calloutColor: "#ec4899",
       calloutDir: "down-left",
       bullets: [
@@ -91,6 +143,7 @@ export default function Portfolio() {
       videoUrl: null,
       posterUrl: resolveAsset("docs/previews/data_analyst_preview.png"),
       calloutText: "Gemini API NL-to-SQL reasoning & Plotly charts",
+      calloutAuthor: "Agent: Sarah",
       calloutColor: "#06b6d4",
       calloutDir: "down-right",
       bullets: [
@@ -114,6 +167,7 @@ export default function Portfolio() {
       videoUrl: resolveAsset("docs/videos/churn_preview.mp4"),
       posterUrl: resolveAsset("docs/previews/churn_preview.png"),
       calloutText: "84.2% ROC-AUC & live $MRR risk simulator",
+      calloutAuthor: "Agent: Alex",
       calloutColor: "#10b981",
       calloutDir: "down-left",
       bullets: [
@@ -137,6 +191,7 @@ export default function Portfolio() {
       videoUrl: resolveAsset("docs/videos/recoverx_preview.mp4"),
       posterUrl: resolveAsset("docs/previews/recoverx_preview.png"),
       calloutText: "32/32 Pytest suites passed in 0.85s (100%)",
+      calloutAuthor: "Agent: Dev",
       calloutColor: "#a855f7",
       calloutDir: "down-right",
       bullets: [
@@ -160,6 +215,7 @@ export default function Portfolio() {
       videoUrl: null,
       posterUrl: resolveAsset("docs/previews/credit_risk_preview.png"),
       calloutText: "XGBoost & LightGBM credit default risk tiering",
+      calloutAuthor: "Agent: David",
       calloutColor: "#f59e0b",
       calloutDir: "down-left",
       bullets: [
@@ -224,12 +280,13 @@ export default function Portfolio() {
   ];
 
   return (
-    <div 
-      className="min-h-screen bg-[#08090d] text-slate-100 canvas-grid relative selection:bg-[#ff4d00] selection:text-white"
-      style={{ zoom: `${zoom}%` }}
-    >
-      {/* Live Collaborative Multiplayer Cursors Drifting on Screen */}
-      <MultiplayerCursors />
+    <div className="min-h-screen bg-[#08090d] text-slate-100 canvas-grid relative selection:bg-[#ff4500] selection:text-white">
+      
+      {/* Live Swarm Rebuild Autonomous Cursors (Moves and Pastes Matter) */}
+      <SwarmRebuildCursors 
+        activeStep={activeStep}
+        isRebuilding={isRebuilding}
+      />
 
       {/* Top Navigation Canvas Bar */}
       <header className="sticky top-0 z-40 w-full bg-[#08090d]/85 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-3.5">
@@ -238,8 +295,8 @@ export default function Portfolio() {
           {/* Left: Identity Pill with Selection Frame */}
           <SelectionFrame label="Frame: Header" tagColor="#0d99ff">
             <a href="#hero" className="flex items-center gap-2.5 text-slate-200 hover:text-white transition-colors">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ff4d00] animate-pulse"></span>
-              <span className="font-extrabold text-sm sm:text-base tracking-wider uppercase font-['Syne']">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff4500] animate-pulse"></span>
+              <span className="font-extrabold text-sm sm:text-base tracking-wider uppercase font-heading">
                 KANDI NIKHIL SAI KUMAR
               </span>
             </a>
@@ -283,7 +340,7 @@ export default function Portfolio() {
             </a>
             <a
               href="mailto:nikhilsaikumarkandi@gmail.com"
-              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#ff4d00] hover:bg-[#ff5722] text-white shadow-md transition-all active:scale-95"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#ff4500] hover:bg-[#ff5722] text-white shadow-md transition-all active:scale-95"
             >
               HIRE ME
             </a>
@@ -292,35 +349,33 @@ export default function Portfolio() {
       </header>
 
       {/* Hero Section (00:00 - 00:08 in Reference Video) */}
-      <section id="hero" className="relative pt-12 pb-24 md:pt-20 md:pb-36 overflow-hidden">
+      <section id="hero" className="relative pt-8 pb-20 md:pt-16 md:pb-28 overflow-hidden min-h-[90vh] flex items-center">
         
-        {/* Giant Hollow Outlined "PORTFOLIO" Text in Background */}
+        {/* Massive Solid Red-Orange Gradient "PORTFOLIO" Text in Background */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none z-0">
-          <h1 className="text-outline-orange text-7xl sm:text-9xl md:text-[200px] lg:text-[240px] font-black tracking-tighter uppercase leading-none opacity-80 font-['Syne']">
+          <h1 className="text-portfolio-gradient text-7xl sm:text-9xl md:text-[210px] lg:text-[260px] font-black tracking-tighter uppercase leading-none font-heading">
             PORTFOLIO
           </h1>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
             
             {/* Left Column: Heading, Bio, and Callout Arrows (5 Cols) */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-5 space-y-5 animate-paste">
               
-              <SelectionFrame label="Hero Text: 580x320" tagColor="#0d99ff" alwaysShow={false}>
-                <div className="space-y-3">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-wider">
-                    <span>Hello, I'm</span>
+              <SelectionFrame label="Hero: Nikhil Sai Kumar" tagColor="#0d99ff" alwaysShow={false}>
+                <div className="space-y-2">
+                  <div className="font-handwriting text-2xl text-slate-300">
+                    Hello, I'm
                   </div>
 
-                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne'] leading-tight">
+                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-heading leading-tight">
                     KANDI NIKHIL <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">
-                      SAI KUMAR.
-                    </span>
+                    SAI KUMAR<span className="text-[#ff4500]">.</span>
                   </h2>
 
-                  <p className="text-base sm:text-lg font-bold tracking-wide text-[#ff4d00] font-mono">
+                  <p className="text-sm sm:text-base font-bold tracking-wider text-[#ff4500] font-mono uppercase">
                     AI SYSTEMS ARCHITECT & ML BUILDER
                   </p>
                 </div>
@@ -329,9 +384,9 @@ export default function Portfolio() {
               {/* Hand-Drawn Callout Arrow Pointing to Bio Statement */}
               <div className="relative pt-1">
                 <CalloutArrow 
-                  author="Nikhil"
+                  author="Jai"
                   text="I build autonomous voice OS, offline edge systems, and enterprise ML pipelines that actually ship."
-                  color="#ff4d00"
+                  color="#ff4500"
                   direction="down-right"
                   className="mb-2"
                 />
@@ -339,16 +394,23 @@ export default function Portfolio() {
                 <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-sans glass-panel p-4 rounded-xl border border-white/10 mt-2">
                   Information Technology Undergraduate at <span className="text-white font-semibold">ANITS</span> (CGPA 8.74, Batch 2023–2027). Specializing in autonomous voice agents, offline edge resilience, and production-ready machine learning architectures.
                 </p>
+
+                {/* Yellow Layout Pill Matching Video */}
+                <div className="pt-2 flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#f59e0b] text-black shadow-sm flex items-center gap-1">
+                    <span>::</span> Layout
+                  </span>
+                </div>
               </div>
 
               {/* Action Buttons with Callout Arrow */}
               <div className="pt-2 flex flex-wrap items-center gap-3">
                 <a
                   href="#work"
-                  className="px-6 py-3 rounded-xl bg-[#ff4d00] hover:bg-[#ff5722] text-white text-sm font-bold tracking-wide shadow-lg shadow-[#ff4d00]/25 transition-all active:scale-95 flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl bg-[#ff4500] hover:bg-[#ff5722] text-white text-sm font-bold tracking-wide shadow-lg shadow-[#ff4500]/25 transition-all active:scale-95 flex items-center gap-2"
                 >
-                  <span>VIEW MY WORK</span>
-                  <i className="fa-solid fa-arrow-down text-xs"></i>
+                  <span>VIEW WORK</span>
+                  <i className="fa-solid fa-arrow-right text-xs"></i>
                 </a>
                 
                 <a
@@ -368,28 +430,33 @@ export default function Portfolio() {
                   RESUME ↗
                 </a>
               </div>
+
+              {/* Dim Monospace Location Tag Matching Video */}
+              <div className="text-[11px] font-mono text-slate-500 tracking-wider">
+                BASED IN VISAKHAPATNAM, INDIA · OPEN TO INTERNSHIPS
+              </div>
             </div>
 
-            {/* Center Column: Cutout Portrait Layered in Front of "PORTFOLIO" (4 Cols) */}
-            <div className="lg:col-span-4 flex justify-center relative">
-              <SelectionFrame label="Cutout Subject: 480x560" tagColor="#a855f7">
-                <div className="relative w-[300px] sm:w-[360px] md:w-[400px] h-[440px] sm:h-[500px] flex items-end justify-center">
+            {/* Center Column: Cutout Portrait (Seamlessly Layered, No Container Box, White Shirt Pristine) */}
+            <div className="lg:col-span-4 flex justify-center relative items-end">
+              <SelectionFrame label="Subject: Kandi Nikhil" tagColor="#a855f7">
+                <div className="relative w-[320px] sm:w-[400px] md:w-[460px] h-[480px] sm:h-[560px] flex items-end justify-center overflow-hidden">
                   
-                  {/* Subtle Multi-Color Radial Depth Glow */}
-                  <div className="absolute inset-0 bg-radial from-[#ff4d00]/20 via-[#6366f1]/15 to-transparent blur-3xl pointer-events-none" />
+                  {/* Subtle Multi-Color Ambient Backlight Glow */}
+                  <div className="absolute inset-0 bg-radial from-[#ff4500]/25 via-[#6366f1]/15 to-transparent blur-3xl pointer-events-none" />
 
-                  {/* High-Resolution Cutout Portrait */}
+                  {/* Pristine Cutout Portrait (Head & Hair Sharp, White Shirt Intact, Bottom Fading to Dark Canvas) */}
                   <img
                     src={nikhilPortrait}
                     alt="Kandi Nikhil Sai Kumar"
-                    className="relative z-10 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-[0_25px_45px_rgba(255,77,0,0.3)] transition-transform duration-500 hover:scale-[1.02]"
+                    className="relative z-10 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-[0_20px_50px_rgba(255,69,0,0.35)] transition-transform duration-500 hover:scale-[1.02]"
                   />
 
                   {/* Cutout Verification Pill Overlay */}
                   <div className="absolute bottom-3 left-4 right-4 z-20 px-3.5 py-2 rounded-xl bg-[#08090d]/85 border border-white/15 backdrop-blur-md flex items-center justify-between shadow-xl">
                     <div>
                       <p className="text-xs font-bold text-white tracking-wide">Kandi Nikhil Sai Kumar</p>
-                      <p className="text-[10px] font-mono text-[#ff4d00]">ANITS B.Tech IT · Batch 2023–2027</p>
+                      <p className="text-[10px] font-mono text-[#ff4500]">ANITS B.Tech IT · Batch 2023–2027</p>
                     </div>
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   </div>
@@ -398,7 +465,7 @@ export default function Portfolio() {
             </div>
 
             {/* Right Column: Key Stats Matrix with Callout Arrow (3 Cols) */}
-            <div className="lg:col-span-3 space-y-4">
+            <div className="lg:col-span-3 space-y-4 animate-paste">
               <div className="relative">
                 <CalloutArrow 
                   author="Verified"
@@ -412,9 +479,9 @@ export default function Portfolio() {
                   <div className="space-y-3 glass-panel p-4 rounded-2xl border border-white/10">
                     
                     {/* Stat 1 */}
-                    <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#ff4d00]/30 transition-all">
-                      <div className="text-3xl sm:text-4xl font-black text-white font-['Syne'] tracking-tight">
-                        06<span className="text-[#ff4d00]">+</span>
+                    <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#ff4500]/30 transition-all">
+                      <div className="text-3xl sm:text-4xl font-black text-white font-heading tracking-tight">
+                        06<span className="text-[#ff4500]">+</span>
                       </div>
                       <div className="text-xs font-mono text-slate-300 font-semibold uppercase tracking-wider mt-0.5">
                         Production Systems
@@ -426,7 +493,7 @@ export default function Portfolio() {
 
                     {/* Stat 2 */}
                     <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-indigo-500/30 transition-all">
-                      <div className="text-3xl sm:text-4xl font-black text-indigo-400 font-['Syne'] tracking-tight">
+                      <div className="text-3xl sm:text-4xl font-black text-indigo-400 font-heading tracking-tight">
                         8.74
                       </div>
                       <div className="text-xs font-mono text-slate-300 font-semibold uppercase tracking-wider mt-0.5">
@@ -439,7 +506,7 @@ export default function Portfolio() {
 
                     {/* Stat 3 */}
                     <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-emerald-500/30 transition-all">
-                      <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-['Syne'] tracking-tight">
+                      <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-heading tracking-tight">
                         100<span className="text-xs font-mono text-emerald-300">%</span>
                       </div>
                       <div className="text-xs font-mono text-slate-300 font-semibold uppercase tracking-wider mt-0.5">
@@ -462,7 +529,7 @@ export default function Portfolio() {
       {/* Infinite Horizontal Tech Marquee Ticker (00:21 in Video) */}
       <section className="relative py-4 bg-black/60 border-y border-white/10 overflow-hidden select-none">
         <div className="animate-marquee items-center gap-8 text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
-          <span className="text-[#ff4d00]">● FASTAPI</span>
+          <span className="text-[#ff4500]">● FASTAPI</span>
           <span>● PYTHON 3.12</span>
           <span className="text-indigo-400">● REACT 19</span>
           <span>● THREE.JS WEBGL</span>
@@ -475,11 +542,11 @@ export default function Portfolio() {
           <span className="text-purple-400">● PLOTLY CHARTS</span>
           <span>● SCIKIT-LEARN</span>
           <span>● PYTEST (100% PASS)</span>
-          <span className="text-[#ff4d00]">● POSTMAN</span>
+          <span className="text-[#ff4500]">● POSTMAN</span>
           <span>● GIT & CI/CD</span>
 
           {/* Repeat for seamless infinite loop */}
-          <span className="text-[#ff4d00]">● FASTAPI</span>
+          <span className="text-[#ff4500]">● FASTAPI</span>
           <span>● PYTHON 3.12</span>
           <span className="text-indigo-400">● REACT 19</span>
           <span>● THREE.JS WEBGL</span>
@@ -492,7 +559,7 @@ export default function Portfolio() {
           <span className="text-purple-400">● PLOTLY CHARTS</span>
           <span>● SCIKIT-LEARN</span>
           <span>● PYTEST (100% PASS)</span>
-          <span className="text-[#ff4d00]">● POSTMAN</span>
+          <span className="text-[#ff4500]">● POSTMAN</span>
           <span>● GIT & CI/CD</span>
         </div>
       </section>
@@ -503,13 +570,13 @@ export default function Portfolio() {
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-12 border-b border-white/10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4500]/15 border border-[#ff4500]/30 text-[#ff4500] text-xs font-mono font-bold tracking-widest uppercase mb-3">
               SELECTED WORK
             </div>
             
             <SelectionFrame label="Section: Selected Work" tagColor="#0d99ff">
-              <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne']">
-                WORK THAT <span className="text-outline-orange">SHIPS.</span>
+              <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-heading">
+                WORK THAT <span className="text-[#ff4500]">SHIPS.</span>
               </h2>
             </SelectionFrame>
           </div>
@@ -538,7 +605,7 @@ export default function Portfolio() {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 rounded-full text-xs font-mono font-semibold tracking-wider transition-all ${
                 activeTab === tab
-                  ? 'bg-[#ff4d00] text-white shadow-md'
+                  ? 'bg-[#ff4500] text-white shadow-md'
                   : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
               }`}
             >
@@ -552,7 +619,7 @@ export default function Portfolio() {
           {filteredProjects.map((project, idx) => (
             <div 
               key={project.id}
-              className={`${idx % 2 === 1 ? 'md:translate-y-6' : ''} transition-transform duration-300`}
+              className={`${idx % 2 === 1 ? 'md:translate-y-6' : ''} transition-transform duration-300 animate-paste`}
             >
               <SelectionFrame 
                 label={`Card ${project.num}: ${project.title}`} 
@@ -569,7 +636,7 @@ export default function Portfolio() {
                     {/* Header Row: Number + Badge + Preview Button */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-2xl font-black font-['Syne'] text-[#ff4d00]">
+                        <span className="text-2xl font-black font-heading text-[#ff4500]">
                           {project.num}
                         </span>
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-white/10 border border-white/15 text-slate-200">
@@ -580,7 +647,7 @@ export default function Portfolio() {
                       {project.videoUrl && (
                         <button
                           onClick={() => setActiveModalProject(project)}
-                          className="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-[#ff4d00]/20 hover:bg-[#ff4d00] text-[#ff4d00] hover:text-white border border-[#ff4d00]/40 transition-all flex items-center gap-1.5"
+                          className="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-[#ff4500]/20 hover:bg-[#ff4500] text-[#ff4500] hover:text-white border border-[#ff4500]/40 transition-all flex items-center gap-1.5"
                         >
                           <i className="fa-solid fa-play text-[10px]"></i>
                           <span>Preview</span>
@@ -590,7 +657,7 @@ export default function Portfolio() {
 
                     {/* Title & Subtitle */}
                     <div>
-                      <h3 className="text-2xl sm:text-3xl font-black text-white uppercase font-['Syne'] tracking-tight group-hover:text-[#ff4d00] transition-colors">
+                      <h3 className="text-2xl sm:text-3xl font-black text-white uppercase font-heading tracking-tight group-hover:text-[#ff4500] transition-colors">
                         {project.title}
                       </h3>
                       <p className="text-xs sm:text-sm font-semibold text-slate-300 font-mono mt-1">
@@ -602,6 +669,7 @@ export default function Portfolio() {
                     {project.calloutText && (
                       <div className="pt-1">
                         <CalloutArrow 
+                          author={project.calloutAuthor}
                           text={project.calloutText}
                           color={project.calloutColor}
                           direction={project.calloutDir}
@@ -614,7 +682,7 @@ export default function Portfolio() {
                     <ul className="space-y-2 text-xs sm:text-sm text-slate-300 leading-relaxed font-sans pt-1">
                       {project.bullets.map((b, bIdx) => (
                         <li key={bIdx} className="flex items-start gap-2">
-                          <span className="text-[#ff4d00] font-bold mt-0.5">›</span>
+                          <span className="text-[#ff4500] font-bold mt-0.5">›</span>
                           <span>{b}</span>
                         </li>
                       ))}
@@ -642,7 +710,7 @@ export default function Portfolio() {
                           href={project.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs font-bold font-mono text-[#ff4d00] hover:text-[#ff5722] transition-colors flex items-center gap-1"
+                          className="text-xs font-bold font-mono text-[#ff4500] hover:text-[#ff5722] transition-colors flex items-center gap-1"
                         >
                           <span>{project.ctaText}</span>
                         </a>
@@ -681,16 +749,16 @@ export default function Portfolio() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left Column: Heading and Giant Number Metric */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-5 space-y-6 animate-paste">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4500]/15 border border-[#ff4500]/30 text-[#ff4500] text-xs font-mono font-bold tracking-widest uppercase mb-3">
                   TRACK RECORD
                 </div>
                 
-                <SelectionFrame label="Metric: 8.74 CGPA" tagColor="#ff4d00">
-                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne'] leading-tight">
+                <SelectionFrame label="Metric: 8.74 CGPA" tagColor="#ff4500">
+                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-heading leading-tight">
                     BUILT FAST. <br />
-                    <span className="text-outline-orange">SHIPPED REAL.</span>
+                    <span className="text-[#ff4500]">SHIPPED REAL.</span>
                   </h2>
                 </SelectionFrame>
               </div>
@@ -698,7 +766,7 @@ export default function Portfolio() {
               {/* Giant Metric Number with Hand-Drawn Callout Arrow */}
               <div className="relative pt-4">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-7xl sm:text-9xl font-black font-['Syne'] text-[#ff4d00] tracking-tighter">
+                  <span className="text-7xl sm:text-9xl font-black font-heading text-[#ff4500] tracking-tighter">
                     8.74
                   </span>
                   <span className="text-xl sm:text-2xl font-mono text-slate-400 font-bold">
@@ -709,7 +777,7 @@ export default function Portfolio() {
                 <CalloutArrow 
                   author="Academic Excellence"
                   text="CGPA at ANITS with zero backlogs & full engineering coursework."
-                  color="#ff4d00"
+                  color="#ff4500"
                   direction="down-right"
                   className="mt-2"
                 />
@@ -721,7 +789,7 @@ export default function Portfolio() {
             </div>
 
             {/* Right Column: Timeline & Internship Experience */}
-            <div className="lg:col-span-7 space-y-4">
+            <div className="lg:col-span-7 space-y-4 animate-paste">
               <SelectionFrame label="Timeline: Experience & Education" tagColor="#0d99ff">
                 <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 space-y-6">
                   
@@ -730,10 +798,10 @@ export default function Portfolio() {
                     <div key={idx} className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 pb-6 border-b border-white/10 last:border-b-0 last:pb-0">
                       <div>
                         <div className="flex items-center gap-2.5">
-                          <h4 className="text-lg font-bold text-white font-['Syne']">
+                          <h4 className="text-lg font-bold text-white font-heading">
                             {item.role}
                           </h4>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#ff4d00]/20 text-[#ff4d00] font-semibold">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#ff4500]/20 text-[#ff4500] font-semibold">
                             {item.company}
                           </span>
                         </div>
@@ -751,7 +819,7 @@ export default function Portfolio() {
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 pt-2">
                     <div>
                       <div className="flex items-center gap-2.5">
-                        <h4 className="text-lg font-bold text-white font-['Syne']">
+                        <h4 className="text-lg font-bold text-white font-heading">
                           B.Tech in Information Technology
                         </h4>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-indigo-500/20 text-indigo-400 font-semibold">
@@ -781,14 +849,14 @@ export default function Portfolio() {
         
         {/* Section Header */}
         <div className="pb-12 border-b border-white/10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4500]/15 border border-[#ff4500]/30 text-[#ff4500] text-xs font-mono font-bold tracking-widest uppercase mb-3">
             EDUCATION & ARSENAL
           </div>
           
           <SelectionFrame label="Section: Skills & Philosophy" tagColor="#0d99ff">
-            <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne']">
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-heading">
               NOT JUST CODE. <br className="sm:hidden" />
-              <span className="text-outline-orange">CODE THAT SHIPS.</span>
+              <span className="text-[#ff4500]">CODE THAT SHIPS.</span>
             </h2>
           </SelectionFrame>
         </div>
@@ -796,19 +864,19 @@ export default function Portfolio() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-12 items-start">
           
           {/* Left Column: Categorized Technical Arsenal (7 Cols) */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="lg:col-span-7 space-y-4 animate-paste">
             <SelectionFrame label="Technical Arsenal Grid" tagColor="#0d99ff">
               <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 space-y-6">
                 {techArsenal.map((category, idx) => (
                   <div key={idx} className="space-y-2">
-                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#ff4d00]">
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#ff4500]">
                       {category.category}
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {category.skills.map((skill, sIdx) => (
                         <span 
                           key={sIdx}
-                          className="px-3 py-1.5 rounded-lg text-xs font-mono bg-white/[0.04] border border-white/10 text-slate-200 hover:border-[#ff4d00]/40 transition-colors"
+                          className="px-3 py-1.5 rounded-lg text-xs font-mono bg-white/[0.04] border border-white/10 text-slate-200 hover:border-[#ff4500]/40 transition-colors"
                         >
                           {skill}
                         </span>
@@ -821,7 +889,7 @@ export default function Portfolio() {
           </div>
 
           {/* Right Column: Sticky Notes & Big Signature Quote Banner (5 Cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 animate-paste">
             
             {/* Sticky Notes Grid Matching the Video */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -847,11 +915,11 @@ export default function Portfolio() {
             </div>
 
             {/* Big Signature Quote Card (Vibrant Orange Background from Video) */}
-            <SelectionFrame label="Quote: Engineering Standard" tagColor="#ff4d00">
-              <div className="p-8 sm:p-10 rounded-2xl bg-gradient-to-br from-[#ff4d00] to-[#ff2a00] text-white shadow-2xl relative overflow-hidden">
+            <SelectionFrame label="Quote: Engineering Standard" tagColor="#ff4500">
+              <div className="p-8 sm:p-10 rounded-2xl bg-gradient-to-br from-[#ff4500] to-[#ff2a00] text-white shadow-2xl relative overflow-hidden">
                 <div className="relative z-10 space-y-4">
-                  <span className="text-3xl font-black font-['Syne'] opacity-50 select-none">“</span>
-                  <p className="text-xl sm:text-2xl font-black uppercase font-['Syne'] tracking-tight leading-snug">
+                  <span className="text-3xl font-black font-heading opacity-50 select-none">“</span>
+                  <p className="text-xl sm:text-2xl font-black uppercase font-heading tracking-tight leading-snug">
                     SHIP THE FEATURE, THEN WRITE THE TEST THAT PROVES IT CAN'T SILENTLY BREAK.
                   </p>
                   <div className="pt-2 flex items-center justify-between text-xs font-mono font-bold text-white/85">
@@ -875,16 +943,16 @@ export default function Portfolio() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left Column: Heading and Description */}
-            <div className="lg:col-span-6 space-y-6">
+            <div className="lg:col-span-6 space-y-6 animate-paste">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4d00]/15 border border-[#ff4d00]/30 text-[#ff4d00] text-xs font-mono font-bold tracking-widest uppercase mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff4500]/15 border border-[#ff4500]/30 text-[#ff4500] text-xs font-mono font-bold tracking-widest uppercase mb-3">
                   CONTACT
                 </div>
                 
                 <SelectionFrame label="Section: Contact" tagColor="#0d99ff">
-                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-['Syne'] leading-tight">
+                  <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase font-heading leading-tight">
                     LET'S WORK <br />
-                    <span className="text-outline-orange">TOGETHER.</span>
+                    <span className="text-[#ff4500]">TOGETHER.</span>
                   </h2>
                 </SelectionFrame>
               </div>
@@ -896,7 +964,7 @@ export default function Portfolio() {
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <a
                   href="mailto:nikhilsaikumarkandi@gmail.com"
-                  className="px-6 py-3.5 rounded-xl bg-[#ff4d00] hover:bg-[#ff5722] text-white text-sm font-bold tracking-wide shadow-lg shadow-[#ff4d00]/25 transition-all active:scale-95 flex items-center gap-2"
+                  className="px-6 py-3.5 rounded-xl bg-[#ff4500] hover:bg-[#ff5722] text-white text-sm font-bold tracking-wide shadow-lg shadow-[#ff4500]/25 transition-all active:scale-95 flex items-center gap-2"
                 >
                   <i className="fa-solid fa-paper-plane text-xs"></i>
                   <span>GET IN TOUCH</span>
@@ -915,7 +983,7 @@ export default function Portfolio() {
             </div>
 
             {/* Right Column: Interactive Figma Cursor Contact Cards & Big Kicker */}
-            <div className="lg:col-span-6 space-y-4">
+            <div className="lg:col-span-6 space-y-4 animate-paste">
               
               {/* Email Card with Figma Arrow */}
               <div className="relative">
@@ -930,10 +998,10 @@ export default function Portfolio() {
                 <SelectionFrame label="Contact: Email" tagColor="#0d99ff">
                   <a
                     href="mailto:nikhilsaikumarkandi@gmail.com"
-                    className="glass-panel p-4 rounded-xl border border-white/10 flex items-center justify-between hover:border-[#ff4d00]/40 transition-colors block"
+                    className="glass-panel p-4 rounded-xl border border-white/10 flex items-center justify-between hover:border-[#ff4500]/40 transition-colors block"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#ff4d00]/15 flex items-center justify-center text-[#ff4d00]">
+                      <div className="w-10 h-10 rounded-lg bg-[#ff4500]/15 flex items-center justify-center text-[#ff4500]">
                         <i className="fa-solid fa-envelope"></i>
                       </div>
                       <div>
@@ -996,7 +1064,7 @@ export default function Portfolio() {
 
               {/* Giant "SHIP IT FOR REAL." Footer Kicker */}
               <div className="pt-6 text-right select-none">
-                <h3 className="text-3xl sm:text-5xl font-black tracking-tight text-outline-white font-['Syne'] uppercase">
+                <h3 className="text-3xl sm:text-5xl font-black tracking-tight text-outline-white font-heading uppercase">
                   SHIP IT FOR REAL.
                 </h3>
               </div>
@@ -1021,9 +1089,9 @@ export default function Portfolio() {
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/40">
               <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-[#ff4d00]"></span>
+                <span className="w-3 h-3 rounded-full bg-[#ff4500]"></span>
                 <div>
-                  <h4 className="text-base font-bold text-white font-['Syne']">
+                  <h4 className="text-base font-bold text-white font-heading">
                     {activeModalProject.title} — Video Walkthrough
                   </h4>
                   <p className="text-xs font-mono text-slate-400">
@@ -1067,7 +1135,7 @@ export default function Portfolio() {
                     href={activeModalProject.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-xl bg-[#ff4d00] hover:bg-[#ff5722] text-white text-xs font-bold font-mono transition-all"
+                    className="px-4 py-2 rounded-xl bg-[#ff4500] hover:bg-[#ff5722] text-white text-xs font-bold font-mono transition-all"
                   >
                     {activeModalProject.ctaText}
                   </a>
@@ -1091,10 +1159,12 @@ export default function Portfolio() {
 
       {/* Bottom Figma-Style Canvas Dock (Replicating Reference Video) */}
       <BottomCanvasDock 
-        activeTool={activeTool}
-        setActiveTool={setActiveTool}
-        zoom={zoom}
-        setZoom={setZoom}
+        isRebuilding={isRebuilding}
+        setIsRebuilding={setIsRebuilding}
+        currentStep={activeStep}
+        totalSteps={totalSteps}
+        onReplay={handleReplay}
+        onTogglePlayPause={handleTogglePlayPause}
       />
     </div>
   );
