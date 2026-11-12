@@ -10,37 +10,42 @@ export default {
   theme: {
     extend: {
       colors: {
-        flame: {
-          50: '#fff5f2',
-          100: '#ffe8e3',
-          200: '#ffd5cc',
-          300: '#ffb3a3',
-          400: '#ff8166',
-          500: '#ff4d2e',
-          600: '#ff3e1d',
-          700: '#e62f0f',
-          800: '#bd240a',
-          900: '#99210e',
-          950: '#540c03',
+        slate: {
+          925: '#0f172a',
+          950: '#0b0f19',
+          975: '#070a12',
         },
-        carbon: {
-          900: '#111115',
-          950: '#08080a',
+        brand: {
+          indigo: '#6366f1',
+          purple: '#8b5cf6',
+          violet: '#a855f7',
+          cyan: '#06b6d4',
+          pink: '#ec4899',
+          flame: '#ff4d2e',
         }
       },
       fontFamily: {
-        display: ['Impact', 'Haettenschweiler', "'Arial Black'", 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        display: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'glow-indigo': '0 0 25px -5px rgba(99, 102, 241, 0.4)',
+        'glow-purple': '0 0 25px -5px rgba(168, 85, 247, 0.4)',
+        'inner-glow': 'inset 0 0 20px 0 rgba(99, 102, 241, 0.15)',
       },
       animation: {
-        'marquee': 'marquee 25s linear infinite',
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'grid-flow': 'gridMove 30s linear infinite',
+        'pulse-glow': 'pulseGlow 4s ease-in-out infinite',
       },
       keyframes: {
-        marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-50%)' },
+        gridMove: {
+          '0%': { backgroundPosition: '0 0' },
+          '100%': { backgroundPosition: '64px 64px' },
+        },
+        pulseGlow: {
+          '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
         }
       }
     },

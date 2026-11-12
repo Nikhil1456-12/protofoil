@@ -1,477 +1,308 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-// The 12 Collaborative AI Builder Agents from the Video
-const AGENTS = {
-  typevert: { name: 'Typevert', color: '#3B82F6', textColor: '#FFF', icon: 'fa-font' },
-  motion: { name: 'Motion', color: '#EC4899', textColor: '#FFF', icon: 'fa-wand-magic-sparkles' },
-  comp: { name: 'Comp', color: '#8B5CF6', textColor: '#FFF', icon: 'fa-cubes' },
-  index: { name: 'Index', color: '#06B6D4', textColor: '#000', icon: 'fa-database' },
-  qa: { name: 'QA', color: '#10B981', textColor: '#000', icon: 'fa-vial-circle-check' },
-  deploy: { name: 'Deploy', color: '#FF4D2E', textColor: '#FFF', icon: 'fa-rocket' },
-  palette: { name: 'Palette', color: '#F59E0B', textColor: '#000', icon: 'fa-palette' },
-  lint: { name: 'Lint', color: '#94A3B8', textColor: '#000', icon: 'fa-check-double' },
-  security: { name: 'Security', color: '#EF4444', textColor: '#FFF', icon: 'fa-shield-halved' },
-  layout: { name: 'Layout', color: '#EAB308', textColor: '#000', icon: 'fa-table-columns' },
-  review: { name: 'Review', color: '#D946EF', textColor: '#FFF', icon: 'fa-code-pull-request' },
-  connect: { name: 'Connect', color: '#14B8A6', textColor: '#000', icon: 'fa-network-wired' },
-};
-
-// Initial floating cursor positions across the viewport
-const INITIAL_CURSORS = [
-  { id: 'typevert', ...AGENTS.typevert, x: 22, y: 14, action: 'connecting' },
-  { id: 'motion', ...AGENTS.motion, x: 14, y: 36, action: 'typing' },
-  { id: 'comp', ...AGENTS.comp, x: 78, y: 22, action: 'placing' },
-  { id: 'index', ...AGENTS.index, x: 34, y: 62, action: 'indexing' },
-  { id: 'qa', ...AGENTS.qa, x: 84, y: 45, action: 'asserting' },
-  { id: 'deploy', ...AGENTS.deploy, x: 68, y: 76, action: 'edge sync' },
-  { id: 'palette', ...AGENTS.palette, x: 48, y: 28, action: 'sampling' },
-  { id: 'lint', ...AGENTS.lint, x: 18, y: 82, action: 'formatting' },
-  { id: 'security', ...AGENTS.security, x: 62, y: 38, action: 'validating' },
-  { id: 'layout', ...AGENTS.layout, x: 26, y: 52, action: 'aligning' },
-  { id: 'review', ...AGENTS.review, x: 74, y: 58, action: 'diff check' },
-  { id: 'connect', ...AGENTS.connect, x: 54, y: 88, action: 'mesh route' },
-];
-
-// Interactive Figma / Canvas Style Bounding Box with Live Typewriter Effect
-function AgenticTextLine({
-  agent,
-  fullText,
-  dimension = '520 × 36',
-  delay = 200,
-  speed = 18,
-  isActive = true,
-  bulletPrefix = '▸ '
-}) {
-  const [displayText, setDisplayText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
+// Anti-Gravity Plus Flow — Physics & Particle System Canvas
+function ParticleCanvas() {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    if (!isActive) {
-      setDisplayText(fullText);
-      setIsComplete(true);
-      return;
-    }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
 
-    let timeout;
-    let interval;
-    let index = 0;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
 
-    setDisplayText('');
-    setIsComplete(false);
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
 
-    timeout = setTimeout(() => {
-      setIsTyping(true);
-      interval = setInterval(() => {
-        index += 1;
-        setDisplayText(fullText.slice(0, index));
-        if (index >= fullText.length) {
-          clearInterval(interval);
-          setIsTyping(false);
-          setIsComplete(true);
+    // Floating particle nodes reacting gently to cursor coordinates
+    const particles = Array.from({ length: 42 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      radius: Math.random() * 1.8 + 0.8,
+      alpha: Math.random() * 0.5 + 0.2,
+    }));
+
+    let mouse = { x: -1000, y: -1000 };
+    const handleMouseMove = (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Render connected constellation lines
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(99, 102, 241, ${0.12 * (1 - dist / 110)})`;
+            ctx.lineWidth = 0.75;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
         }
-      }, speed);
-    }, delay);
+      }
+
+      // Render and update particles
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        // Gentle cursor push reaction
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          p.x -= (dx / dist) * 1.2;
+          p.y -= (dy / dist) * 1.2;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(168, 85, 247, ${p.alpha})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = 'rgba(99, 102, 241, 0.5)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
 
     return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animationFrameId);
     };
-  }, [fullText, delay, speed, isActive]);
+  }, []);
 
   return (
-    <div className="relative group my-2.5 transition-all duration-300">
-      {/* Figma Selection Bounding Box */}
-      <div
-        className="relative p-2.5 sm:p-3 rounded-lg border transition-all duration-300"
-        style={{
-          borderColor: isTyping ? agent.color : `${agent.color}40`,
-          backgroundColor: isTyping ? `${agent.color}0a` : 'rgba(255, 255, 255, 0.012)',
-          boxShadow: isTyping ? `0 0 16px ${agent.color}25` : 'none'
-        }}
-      >
-        {/* 4 Corner Anchor Handles (White squares with agent color border) */}
-        <div className="absolute -top-1 -left-1 w-2 h-2 bg-white rounded-[1px] border shadow-xs" style={{ borderColor: agent.color }} />
-        <div className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-[1px] border shadow-xs" style={{ borderColor: agent.color }} />
-        <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-white rounded-[1px] border shadow-xs" style={{ borderColor: agent.color }} />
-        <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-white rounded-[1px] border shadow-xs" style={{ borderColor: agent.color }} />
-
-        {/* Top Agent Status Badge with Arrow (Exact from Reel) */}
-        <div
-          className="absolute -top-3.5 left-2 px-2 py-0.5 rounded text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-md border border-white/20 z-20 select-none"
-          style={{ backgroundColor: agent.color, color: agent.textColor }}
-        >
-          <span className={`w-1.5 h-1.5 rounded-full bg-current ${isTyping ? 'animate-ping' : ''}`} />
-          <span>{agent.name} · {isTyping ? 'typing' : 'placed'}</span>
-        </div>
-
-        {/* Dimension Pill (Like Figma / Canva inspect) */}
-        {dimension && (
-          <div className="absolute -top-3 right-2 px-1.5 py-0.5 rounded text-[9px] font-mono text-slate-400 bg-[#08080a] border border-white/10 hidden sm:block select-none">
-            {dimension}
-          </div>
-        )}
-
-        {/* Text with dynamic SVG cursor arrow at insertion point */}
-        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans pr-6">
-          {bulletPrefix && <span className="font-bold text-[#FF4D2E] mr-1.5">{bulletPrefix}</span>}
-          {displayText}
-          {isTyping && (
-            <span className="inline-flex items-center ml-1 align-middle">
-              <span className="w-0.5 h-4 inline-block animate-pulse" style={{ backgroundColor: agent.color }} />
-              <svg width="14" height="14" viewBox="0 0 24 24" fill={agent.color} className="inline-block ml-0.5 drop-shadow -rotate-12">
-                <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
-              </svg>
-            </span>
-          )}
-        </p>
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0 opacity-75"
+    />
   );
 }
 
 export default function Portfolio() {
-  const [agentsActive, setAgentsActive] = useState(true);
-  const [cursors, setCursors] = useState(INITIAL_CURSORS);
-  const [cycleKey, setCycleKey] = useState(0);
-  const [activeVideoModal, setActiveVideoModal] = useState(null);
+  const [mounted, setMounted] = useState(false);
+  const [activeModalProject, setActiveModalProject] = useState(null);
+  const [activeTab, setActiveTab] = useState('ALL');
 
-  // Smooth floating cursor drift simulation
+  // Trigger Phase 1 Spring Entrance on component mount
   useEffect(() => {
-    if (!agentsActive) return;
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
 
-    const interval = setInterval(() => {
-      setCursors(prev =>
-        prev.map(c => {
-          const dx = (Math.random() - 0.5) * 6;
-          const dy = (Math.random() - 0.5) * 6;
-          return {
-            ...c,
-            x: Math.min(92, Math.max(5, c.x + dx)),
-            y: Math.min(92, Math.max(8, c.y + dy)),
-          };
-        })
-      );
-    }, 2200);
-
-    return () => clearInterval(interval);
-  }, [agentsActive]);
-
-  // Replay build / typing trigger
-  const handleReplayBuild = () => {
-    setCycleKey(prev => prev + 1);
-  };
-
-  // Authentic Projects strictly ordered:
-  // 1. JARVIS
-  // 2. Infosys PathSaathi
-  // 3. AI Data Analysis Website
-  // 4. Customer Churn Intelligence
-  // 5. RecoverX
-  // 6. Credit Risk & Loan Default
+  // Strict Project Specifications (Zero Hallucinations, Exact Order)
   const projects = [
     {
+      id: "jarvis",
       num: "01",
       title: "JARVIS",
-      subtitle: "Autonomous Multimodal AI OS & Encrypted Mobile Mesh",
-      domain: "AUTONOMOUS VOICE & HARDWARE AI · 2026",
-      tag: "Flagship AI OS",
-      tagColor: "border-[#FF4D2E]/40 text-[#FF4D2E] bg-[#FF4D2E]/10",
-      videoMp4: "/protofoil/docs/videos/jarvis_preview.mp4",
-      lines: [
-        {
-          agent: AGENTS.motion,
-          text: "Holographic Three.js Arc Reactor HUD rendered at 60 FPS WebGL with real-time audio reactivity.",
-          dim: "520 × 38",
-          delay: 200,
-        },
-        {
-          agent: AGENTS.comp,
-          text: "Continuous Silero VAD listening (<50ms latency) & local LLM voice synthesis for zero-lag conversational control.",
-          dim: "520 × 38",
-          delay: 900,
-        },
-        {
-          agent: AGENTS.index,
-          text: "Zero-cable encrypted remote Android device control via authenticated Termux SSH and Tailscale WireGuard mesh.",
-          dim: "520 × 38",
-          delay: 1600,
-        },
-        {
-          agent: AGENTS.qa,
-          text: "Real-time camera surveillance, GPS tracking, and automated mobile hardware actuation.",
-          dim: "520 × 38",
-          delay: 2300,
-        }
+      category: "AI_SYSTEMS",
+      badge: "Flagship AI OS",
+      subtitle: "Autonomous Multimodal Voice OS & Encrypted Mobile Mesh",
+      videoUrl: "/protofoil/docs/videos/jarvis_preview.mp4",
+      posterUrl: "/protofoil/docs/previews/jarvis_preview.jpg",
+      bullets: [
+        "Holographic Three.js Arc Reactor HUD rendered at 60 FPS WebGL with real-time audio reactivity.",
+        "Continuous Silero VAD listening (<50ms latency) & local LLM voice synthesis for zero-lag conversational control.",
+        "Zero-cable encrypted remote Android device control via authenticated Termux SSH and Tailscale WireGuard mesh."
       ],
       tech: ["React 19", "Three.js", "FastAPI", "Silero VAD", "Tailscale Mesh", "Termux SSH", "WebSockets"],
       liveUrl: "/protofoil/jarvis/",
       githubUrl: "https://github.com/Nikhil1456-12/Jarvis",
-      liveText: "3D HUD Demo ↗",
+      ctaText: "3D HUD Demo ↗",
+      accent: "from-indigo-500 to-purple-600"
     },
     {
+      id: "pathsaathi",
       num: "02",
-      title: "INFOSYS PATHSAATHI",
+      title: "Infosys PathSaathi",
+      category: "MOBILE_EDGE",
+      badge: "Infosys Capstone",
       subtitle: "Vernacular AI Travel Concierge & Offline Edge System",
-      domain: "INFOSYS MAJOR PROJECT · CAPSTONE ARCHITECT",
-      tag: "Infosys Capstone",
-      tagColor: "border-amber-500/40 text-amber-400 bg-amber-500/10",
-      videoMp4: "/protofoil/docs/videos/pathsaathi_preview.mp4",
-      lines: [
-        {
-          agent: AGENTS.qa,
-          text: "Offline-first vernacular travel companion engineered for high-density pilgrimages with poor or zero connectivity.",
-          dim: "520 × 38",
-          delay: 300,
-        },
-        {
-          agent: AGENTS.comp,
-          text: "Orchestrates localized on-device sub-agents for voice planning, road transit, and accommodation booking.",
-          dim: "520 × 38",
-          delay: 1000,
-        },
-        {
-          agent: AGENTS.security,
-          text: "SQLite offline sync, edge ChromaDB vector search, and biometric authentication via Android Keystore & HSM.",
-          dim: "520 × 38",
-          delay: 1700,
-        },
-        {
-          agent: AGENTS.deploy,
-          text: "Sponsored Infosys Springboard capstone project deployed and validated on physical Android hardware.",
-          dim: "520 × 38",
-          delay: 2400,
-        }
+      videoUrl: "/protofoil/docs/videos/pathsaathi_preview.mp4",
+      posterUrl: "/protofoil/docs/previews/pathsaathi_preview.png",
+      bullets: [
+        "Offline-first vernacular travel companion engineered for high-density pilgrimages with poor or zero connectivity.",
+        "Orchestrates localized on-device sub-agents for voice planning, road transit, and accommodation booking.",
+        "SQLite offline sync, edge ChromaDB vector search, and biometric authentication via Android Keystore & HSM."
       ],
       tech: ["Flutter", "Dart", "Multi-Agent System", "SQLite", "ChromaDB", "Android Keystore", "FastAPI"],
       liveUrl: "https://github.com/Nikhil1456-12/Infosys-Project-Pathsaathi-",
       githubUrl: "https://github.com/Nikhil1456-12/Infosys-Project-Pathsaathi-",
-      liveText: "Architecture & Code ↗",
+      ctaText: "Architecture & Code ↗",
+      accent: "from-purple-500 to-pink-600"
     },
     {
+      id: "data-analyst",
       num: "03",
-      title: "AI DATA ANALYSIS WEBSITE",
+      title: "AI Data Analysis Website",
+      category: "AI_SYSTEMS",
+      badge: "Agentic Analytics",
       subtitle: "Natural Language to SQL Conversational Analytics Engine",
-      domain: "AGENTIC ANALYTICS · FULL STACK",
-      tag: "Agentic Analytics",
-      tagColor: "border-cyan-500/40 text-cyan-400 bg-cyan-500/10",
-      videoMp4: null,
-      lines: [
-        {
-          agent: AGENTS.typevert,
-          text: "Translates conversational natural language business questions into schema-validated SQL queries with zero data leakage.",
-          dim: "520 × 38",
-          delay: 200,
-        },
-        {
-          agent: AGENTS.palette,
-          text: "Returns instant structured tabular data and generates responsive, dynamic interactive Plotly analytics charts.",
-          dim: "520 × 38",
-          delay: 900,
-        },
-        {
-          agent: AGENTS.deploy,
-          text: "Containerized full-stack architecture leveraging Google Gemini API schema reasoning and React 19 UI.",
-          dim: "520 × 38",
-          delay: 1600,
-        }
+      videoUrl: null,
+      posterUrl: "/protofoil/docs/previews/data_analyst_preview.png",
+      bullets: [
+        "Translates conversational natural language business questions into schema-validated SQL queries with zero data leakage.",
+        "Returns instant structured tabular data and generates responsive, dynamic interactive Plotly analytics charts.",
+        "Containerized full-stack architecture leveraging Google Gemini API schema reasoning and React 19 UI."
       ],
       tech: ["React 19", "Node.js", "Express", "Google Gemini API", "Docker", "Plotly", "Tailwind CSS"],
       liveUrl: "https://nikhil1456-12.github.io/-Data-Analyst-AI/",
       githubUrl: "https://github.com/Nikhil1456-12/-Data-Analyst-AI",
-      liveText: "Launch Live App ↗",
+      ctaText: "Launch Live App ↗",
+      accent: "from-cyan-500 to-blue-600"
     },
     {
+      id: "churn",
       num: "04",
-      title: "CUSTOMER CHURN INTELLIGENCE",
+      title: "Customer Churn Intelligence",
+      category: "ML_FINTECH",
+      badge: "84.2% ROC-AUC",
       subtitle: "Production ML Financial Risk & Retention Engine",
-      domain: "FINANCIAL RISK & RETENTION ENGINE · ML PRODUCTION",
-      tag: "84.2% ROC-AUC",
-      tagColor: "border-emerald-500/40 text-emerald-400 bg-emerald-500/10",
-      videoMp4: "/protofoil/docs/videos/churn_preview.mp4",
-      lines: [
-        {
-          agent: AGENTS.qa,
-          text: "Interactive enterprise retention portal featuring dynamic customer CSV/Excel upload with automated column mapping.",
-          dim: "520 × 38",
-          delay: 200,
-        },
-        {
-          agent: AGENTS.review,
-          text: "Sub-100ms client-side inference (84.2% ROC-AUC) calculating individual flight risk and total $MRR revenue exposure.",
-          dim: "520 × 38",
-          delay: 900,
-        },
-        {
-          agent: AGENTS.motion,
-          text: "What-If retention simulation engine modeling financial impact of contract interventions in real time.",
-          dim: "520 × 38",
-          delay: 1600,
-        }
+      videoUrl: "/protofoil/docs/videos/churn_preview.mp4",
+      posterUrl: "/protofoil/docs/previews/churn_preview.png",
+      bullets: [
+        "Interactive enterprise retention portal featuring dynamic customer CSV/Excel upload with automated column mapping.",
+        "Sub-100ms client-side inference (84.2% ROC-AUC) calculating individual flight risk and total $MRR revenue exposure.",
+        "What-If retention simulation engine modeling financial impact of contract interventions in real time."
       ],
-      tech: ["Python", "Scikit-learn", "84.2% ROC-AUC", "Plotly", "JavaScript", "Feature Engineering", "What-If Engine"],
+      tech: ["Python", "Scikit-learn", "Plotly", "Modern JavaScript", "Feature Engineering", "What-If Engine"],
       liveUrl: "https://nikhil1456-12.github.io/CUSTOMER-CHURN-ANALYSIS/",
       githubUrl: "https://github.com/Nikhil1456-12/CUSTOMER-CHURN-ANALYSIS",
-      liveText: "Launch Live App ↗",
+      ctaText: "Launch Live App ↗",
+      accent: "from-emerald-500 to-teal-600"
     },
     {
+      id: "recoverx",
       num: "05",
-      title: "RECOVERX",
+      title: "RecoverX",
+      category: "BACKEND",
+      badge: "Pytest 32/32 (100%)",
       subtitle: "Autonomous Revenue Recovery & Risk Underwriting Platform",
-      domain: "AUTONOMOUS REVENUE RECOVERY · 100% TEST COVERAGE",
-      tag: "Pytest 32/32 (100%)",
-      tagColor: "border-purple-500/40 text-purple-400 bg-purple-500/10",
-      videoMp4: "/protofoil/docs/videos/recoverx_preview.mp4",
-      lines: [
-        {
-          agent: AGENTS.qa,
-          text: "Event-driven revenue recovery microservices engine with automated invoice anomaly detection and payment risk underwriting.",
-          dim: "520 × 38",
-          delay: 200,
-        },
-        {
-          agent: AGENTS.security,
-          text: "Complete OpenAPI documentation and a 100% pass rate across 32 unit and integration tests (0.85s runtime).",
-          dim: "520 × 38",
-          delay: 900,
-        },
-        {
-          agent: AGENTS.deploy,
-          text: "Automated debt collection workflows, recovery action dispatching, and audit logging.",
-          dim: "520 × 38",
-          delay: 1600,
-        }
+      videoUrl: "/protofoil/docs/videos/recoverx_preview.mp4",
+      posterUrl: "/protofoil/docs/previews/recoverx_preview.png",
+      bullets: [
+        "Event-driven revenue recovery microservices engine with automated invoice anomaly detection and payment risk underwriting.",
+        "Complete OpenAPI documentation and a 100% pass rate across 32 unit and integration tests (0.85s runtime).",
+        "Automated debt collection workflows, recovery action dispatching, and audit logging."
       ],
       tech: ["FastAPI", "Python 3.12", "Docker", "Pytest (32/32 Pass)", "Microservices", "SQLite"],
       liveUrl: "https://nikhil1456-12.github.io/RecoverX/",
       githubUrl: "https://github.com/Nikhil1456-12/RecoverX",
-      liveText: "Explore System ↗",
+      ctaText: "Explore System ↗",
+      accent: "from-indigo-500 to-violet-600"
     },
     {
+      id: "credit-risk",
       num: "06",
-      title: "CREDIT RISK & LOAN DEFAULT PREDICTION",
+      title: "Credit Risk & Loan Default",
+      category: "ML_FINTECH",
+      badge: "FinTech ML",
       subtitle: "Probability of Default Underwriting Model",
-      domain: "PROBABILITY OF DEFAULT MODEL · FINTECH ML",
-      tag: "FinTech ML",
-      tagColor: "border-blue-500/40 text-blue-400 bg-blue-500/10",
-      videoMp4: null,
-      lines: [
-        {
-          agent: AGENTS.qa,
-          text: "Underwriting analytics engine quantifying probability of default across diverse applicant financial profiles.",
-          dim: "520 × 38",
-          delay: 200,
-        },
-        {
-          agent: AGENTS.index,
-          text: "Calibrated statistical modeling with real-time risk tiering and decision explainability.",
-          dim: "520 × 38",
-          delay: 900,
-        },
-        {
-          agent: AGENTS.lint,
-          text: "Production-tested pipeline with automated preprocessing and feature validation.",
-          dim: "520 × 38",
-          delay: 1600,
-        }
+      videoUrl: null,
+      posterUrl: "/protofoil/docs/previews/credit_risk_preview.png",
+      bullets: [
+        "Underwriting analytics engine quantifying probability of default across diverse applicant financial profiles.",
+        "Calibrated statistical modeling with real-time risk tiering and decision explainability.",
+        "Production-tested pipeline with automated preprocessing and feature validation."
       ],
       tech: ["Python", "Scikit-learn", "Streamlit", "Statistical Modeling", "Credit Underwriting"],
       liveUrl: "https://nikhil1456-12.github.io/CREDIT-RISK-LOAN-DEFAULT-PREDICTION-SYSTEM/",
       githubUrl: "https://github.com/Nikhil1456-12/CREDIT-RISK-LOAN-DEFAULT-PREDICTION-SYSTEM",
-      liveText: "Launch Live App ↗",
+      ctaText: "Launch Live App ↗",
+      accent: "from-blue-500 to-indigo-600"
     }
   ];
+
+  const filteredProjects = activeTab === 'ALL'
+    ? projects
+    : projects.filter(p => p.category === activeTab);
 
   const internships = [
     {
       company: "Labmentix",
       role: "Machine Learning & Data Analytics Intern",
       period: "Oct 2024 – Nov 2024",
-      desc: "Engineered predictive machine learning pipelines, performed rigorous exploratory data analysis, and delivered high-precision models."
+      desc: "Engineered predictive machine learning pipelines, conducted exploratory data analysis, and delivered high-precision models."
     },
     {
       company: "NullClass",
       role: "Full Stack Software Development Intern",
       period: "Jul 2024 – Aug 2024",
-      desc: "Developed responsive web interfaces, integrated RESTful APIs, and contributed to full-lifecycle software delivery."
+      desc: "Developed responsive modern web interfaces, integrated secure RESTful endpoints, and contributed to full-lifecycle software delivery."
     },
     {
       company: "SkillDzire",
       role: "Python & Backend Engineering Intern",
       period: "May 2024 – Jun 2024",
-      desc: "Constructed Python backend utilities, automated data transformation scripts, and built modular software components."
+      desc: "Constructed Python backend utilities, automated data transformation scripts, and built modular system components."
     },
     {
       company: "Infosys Springboard",
       role: "Lead Architect — PathSaathi",
       period: "2024 – 2025",
-      desc: "Spearheaded the design and development of PathSaathi, an offline-first vernacular multi-agent pilgrimage concierge."
+      desc: "Spearheaded design and delivery of PathSaathi, an offline-first vernacular multi-agent pilgrimage concierge."
     }
   ];
 
-  const skillsList = [
-    { category: "LANGUAGES", items: "Python 3.12, Java, C, C++, SQL (PostgreSQL & MySQL), JavaScript (ES6+), Dart" },
-    { category: "AI & MACHINE LEARNING", items: "PyTorch, Scikit-learn, XGBoost, LightGBM, Transformers, ChromaDB, LangChain, Ollama" },
-    { category: "BACKEND & ARCHITECTURE", items: "FastAPI, Express.js, RESTful APIs, WebSockets, Microservices, SQLite, Docker" },
-    { category: "FRONTEND & MOBILE", items: "React 19, Tailwind CSS, Vite, Three.js (WebGL), Flutter, HTML5/CSS3" },
-    { category: "DEV, CLOUD & NETWORKING", items: "Git, GitHub Actions, Linux, Termux, Tailscale Mesh, WireGuard, Postman, Pytest" },
+  const skills = [
+    "Python 3.12", "FastAPI", "PyTorch", "Scikit-learn", "React 19", "Three.js",
+    "Flutter & Dart", "SQLite", "PostgreSQL", "Docker", "ChromaDB", "Tailscale",
+    "Termux SSH", "Pytest (32/32)", "Git & CI/CD", "TypeScript", "REST APIs", "C++"
   ];
 
   return (
-    <div key={cycleKey} className="min-h-screen bg-[#08080a] text-slate-100 font-sans relative selection:bg-[#ff4d2e] selection:text-white overflow-hidden">
+    <div className="min-h-screen bg-[#0b0f19] text-slate-100 font-sans relative selection:bg-indigo-500 selection:text-white overflow-x-hidden antialiased">
       
-      {/* Background Subtle Grid & Ambient Glow */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[950px] h-[550px] hero-glow pointer-events-none" />
+      {/* Background Interactive Isometric Grid & Particle Node Canvas */}
+      <div className="fixed inset-0 isometric-grid pointer-events-none z-0" />
+      <ParticleCanvas />
 
-      {/* Live Agent Swarm (Agentic Build Motion Simulation) */}
-      {agentsActive && (
-        <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
-          {cursors.map(c => (
-            <div
-              key={c.id}
-              className="agent-cursor absolute transition-all duration-700 ease-out flex items-center gap-1.5"
-              style={{
-                left: `${c.x}%`,
-                top: `${c.y}%`,
-              }}
-            >
-              {/* SVG Cursor Pointer */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill={c.color} className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
-              </svg>
-              {/* Agent Pill Badge with Live Action */}
-              <div 
-                className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-lg border border-white/10 backdrop-blur-md"
-                style={{ backgroundColor: c.color, color: c.textColor }}
-              >
-                <i className={`fas ${c.icon} text-[9px]`}></i>
-                <span>{c.name} · {c.action}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Floating Island Top Navbar */}
-      <header className="fixed top-5 left-1/2 -translate-x-1/2 z-50">
-        <nav className="flex items-center gap-1 sm:gap-6 px-4 sm:px-6 py-2.5 rounded-full bg-[#121216]/80 border border-white/10 backdrop-blur-xl shadow-2xl text-xs sm:text-sm font-medium">
+      {/* Floating Island Navigation Pill */}
+      <header className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+        <nav className="flex items-center gap-2 sm:gap-6 px-4 sm:px-6 py-2.5 rounded-full bg-[#0f172a]/80 border border-white/10 backdrop-blur-xl shadow-glow-indigo text-xs sm:text-sm font-medium">
           <div className="flex items-center gap-2 pr-3 border-r border-white/10">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D2E] animate-pulse"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse"></span>
             <span className="font-bold text-white tracking-wider">NIKHIL</span>
           </div>
 
-          <a href="#home" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Home</a>
-          <a href="#work" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Work</a>
-          <a href="#stack" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Stack</a>
-          <a href="#about" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">About</a>
+          <a href="#hero" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">About</a>
+          <a href="#projects" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Work</a>
+          <a href="#experience" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Career</a>
           <a href="#contact" className="px-2.5 py-1 text-slate-300 hover:text-white transition-colors">Contact</a>
 
           <a
             href="https://github.com/Nikhil1456-12"
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:flex items-center gap-1.5 pl-3 border-l border-white/10 text-slate-400 hover:text-[#FF4D2E] transition-colors"
+            className="hidden sm:flex items-center gap-1.5 pl-3 border-l border-white/10 text-slate-400 hover:text-indigo-400 transition-colors"
             title="GitHub Profile"
           >
             <i className="fab fa-github text-sm"></i>
@@ -479,687 +310,363 @@ export default function Portfolio() {
         </nav>
       </header>
 
-      {/* Hero Section (Exact Layout & Visual Balance from Reel 00:02 - 00:08) */}
-      <section id="home" className="relative pt-24 sm:pt-32 pb-16 px-6 sm:px-12 max-w-7xl mx-auto min-h-[92vh] flex flex-col justify-between">
-        
-        {/* Giant Typographic Backdrop: "PORTFOLIO" with Typevert Bounding Box */}
-        <div className="absolute top-14 sm:top-18 left-1/2 -translate-x-1/2 w-full text-center pointer-events-none select-none z-0">
-          <div className="relative inline-block">
-            {/* Typevert Connecting Bounding Box from Reel Frame 02 */}
-            <div className="absolute -top-3 -left-3 -right-3 -bottom-3 border border-blue-500/40 rounded-lg pointer-events-none">
-              <div className="absolute -top-3 left-4 px-2 py-0.5 rounded bg-blue-600 text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow">
-                <span className="w-1 h-1 rounded-full bg-white animate-ping" />
-                <span>Typevert · connecting</span>
-              </div>
-              <div className="absolute -top-1 -left-1 w-2 h-2 bg-white border border-blue-500" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-white border border-blue-500" />
-              <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-white border border-blue-500" />
-              <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-white border border-blue-500" />
-            </div>
-
-            <h1 className="font-display text-[22vw] sm:text-[19vw] leading-none font-black text-[#FF4D2E]/20 tracking-tighter uppercase blur-[0.5px]">
-              PORTFOLIO
-            </h1>
-          </div>
-        </div>
-
-        {/* Hero Main Content */}
-        <div className="relative z-10 grid lg:grid-cols-12 gap-8 items-end pt-6">
+      {/* Hero Section — Exact Specifications & Personalization Data */}
+      <section id="hero" className="relative z-10 pt-28 sm:pt-36 pb-20 px-6 sm:px-12 max-w-7xl mx-auto min-h-[90vh] flex flex-col justify-center">
+        <div className={`grid lg:grid-cols-12 gap-10 items-center transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-6 scale-95'}`}>
           
-          {/* Left Column: Greeting, Name, Role, Bio & CTAs */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-slate-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>AVAILABLE FOR OPPORTUNITIES</span>
+          {/* Left Column: User Headline & Value Proposition */}
+          <div className="lg:col-span-7 space-y-6">
+            
+            {/* Live Status Pill */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-xs font-mono text-indigo-300">
+              <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+              <span>KANDI NIKHIL SAI KUMAR</span>
             </div>
 
-            <p className="font-handwriting text-2xl sm:text-3xl text-slate-300 font-bold tracking-wide">
-              Hello, I'm
+            {/* Headline Title */}
+            <div>
+              <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-none text-white">
+                Information Technology <br />
+                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Undergraduate @ ANITS
+                </span>
+              </h1>
+            </div>
+
+            {/* Bio Narrative */}
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+              Specializing in high-reliability software engineering, offline-first mobile systems, and test-driven ML architectures. 
+              Architect of <b>JARVIS</b>, <b>Infosys PathSaathi</b>, and <b>Customer Churn Intelligence</b>.
             </p>
 
-            <h1 className="font-display text-5xl sm:text-7xl font-black tracking-tight leading-none text-white uppercase">
-              NIKHIL <br />
-              <span className="text-white">SAI KUMAR KANDI.</span>
-            </h1>
-
-            {/* Role Header with Active Agent Pill */}
-            <div className="relative inline-block pt-1">
-              <div className="border border-orange-500/50 rounded-lg p-2 bg-orange-500/5 relative">
-                <div className="absolute -top-2.5 left-2 px-1.5 py-0.5 rounded bg-[#FF4D2E] text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow">
-                  <i className="fas fa-terminal text-[8px]"></i>
-                  <span>Role · active</span>
-                </div>
-                <h2 className="font-display text-xl sm:text-2xl font-bold tracking-wide text-[#FF4D2E] uppercase">
-                  AI SYSTEMS &amp; SOFTWARE ENGINEER
-                </h2>
+            {/* Quick Metrics Bar */}
+            <div className="grid grid-cols-3 gap-4 pt-2 max-w-lg">
+              <div className="glass-panel p-3.5 rounded-2xl border border-white/5">
+                <span className="text-2xl font-black bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">8.74</span>
+                <p className="text-[11px] font-mono text-slate-400 uppercase mt-0.5">ANITS CGPA</p>
+              </div>
+              <div className="glass-panel p-3.5 rounded-2xl border border-white/5">
+                <span className="text-2xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">06+</span>
+                <p className="text-[11px] font-mono text-slate-400 uppercase mt-0.5">Production Apps</p>
+              </div>
+              <div className="glass-panel p-3.5 rounded-2xl border border-white/5">
+                <span className="text-2xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">100%</span>
+                <p className="text-[11px] font-mono text-slate-400 uppercase mt-0.5">Pytest Pass (32/32)</p>
               </div>
             </div>
 
-            {/* Live Typed Bio Paragraph */}
-            <AgenticTextLine
-              agent={AGENTS.comp}
-              fullText="I build autonomous voice AI engines, offline-first vernacular mobile apps, and high-reliability ML systems that actually ship. Information Technology student at ANITS (CGPA 8.74)."
-              dimension="480 × 58"
-              delay={300}
-              speed={15}
-              bulletPrefix=""
-            />
+            {/* CTAs with Ripple Click Effect */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <a
+                href="#projects"
+                className="ripple px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold text-sm shadow-glow-indigo hover:shadow-glow-purple transition-all duration-300 flex items-center gap-2 group"
+              >
+                <span>EXPLORE WORK</span>
+                <i className="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+              </a>
 
-            {/* CTA Buttons with Layout Agent Bounding Box */}
-            <div className="relative inline-block pt-2">
-              <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href="#work"
-                  className="px-7 py-3.5 rounded-xl bg-[#FF4D2E] text-white font-bold text-sm hover:bg-[#ff3e1d] transition-all shadow-lg shadow-[#FF4D2E]/25 hover:shadow-[#FF4D2E]/40 flex items-center gap-2 group"
-                >
-                  <span>VIEW WORK</span>
-                  <i className="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
-                </a>
+              <a
+                href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
+                target="_blank"
+                rel="noreferrer"
+                className="ripple px-6 py-3.5 rounded-xl glass-panel text-slate-200 font-semibold text-sm hover:border-purple-400/40 hover:text-white transition-all duration-300"
+              >
+                LinkedIn ↗
+              </a>
 
-                <a
-                  href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-5 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
-                >
-                  LinkedIn ↗
-                </a>
-
-                <a
-                  href="https://github.com/Nikhil1456-12"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-5 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
-                >
-                  GitHub ↗
-                </a>
-              </div>
-
-              {/* Layout Agent Pointer from Reel Frame 08 */}
-              <div className="absolute -bottom-3 left-4 px-2 py-0.5 rounded bg-yellow-400 text-black text-[9px] font-mono font-bold flex items-center gap-1 shadow-md pointer-events-none">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#000" className="-rotate-12">
-                  <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
-                </svg>
-                <span>Layout · placing</span>
-              </div>
+              <a
+                href="https://github.com/Nikhil1456-12"
+                target="_blank"
+                rel="noreferrer"
+                className="ripple px-6 py-3.5 rounded-xl glass-panel text-slate-200 font-semibold text-sm hover:border-indigo-400/40 hover:text-white transition-all duration-300"
+              >
+                GitHub ↗
+              </a>
             </div>
-
-            <p className="font-mono text-[11px] text-slate-500 pt-3">
-              BASED IN VISAKHAPATNAM, INDIA · OPEN TO OPPORTUNITIES
-            </p>
           </div>
 
-          {/* Center Column: Nikhil's Real Cutout Portrait with Agent Cursors (Exact from Reel 00:03 - 00:07) */}
-          <div className="lg:col-span-4 flex justify-center relative select-none">
-            <div className="relative w-full max-w-sm sm:max-w-md h-[420px] sm:h-[500px] flex items-end justify-center">
+          {/* Right Column: User Profile Photo with Smooth Border Glow & Depth Shadow */}
+          <div className="lg:col-span-5 flex justify-center relative">
+            <div className="relative w-full max-w-sm sm:max-w-md">
               
-              {/* Backlight Flame Aura */}
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#FF4D2E]/25 to-transparent blur-3xl pointer-events-none" />
+              {/* Radial Multi-Color Ambient Glow */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/30 via-purple-500/25 to-pink-500/20 rounded-3xl blur-2xl pointer-events-none" />
 
-              {/* Nikhil's Real Cutout Portrait */}
-              <img
-                src="/protofoil/assets/nikhil_portrait.png"
-                alt="Nikhil Sai Kumar Kandi"
-                className="relative z-10 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-[0_15px_45px_rgba(255,77,46,0.22)]"
-              />
+              {/* Glassmorphic Framed Card */}
+              <div className="relative glass-panel rounded-3xl p-4 sm:p-5 border border-indigo-500/30 shadow-2xl backdrop-blur-2xl overflow-hidden">
+                
+                {/* Photo Container with Depth Shadow */}
+                <div className="relative w-full h-[400px] sm:h-[460px] rounded-2xl overflow-hidden bg-gradient-to-b from-[#151d30] via-[#0f172a] to-[#070a12] flex items-end justify-center border border-white/10 shadow-inner-glow">
+                  
+                  {/* Subtle Grid Accent */}
+                  <div className="absolute inset-0 isometric-grid opacity-30 pointer-events-none" />
 
-              {/* Floating Multi-Agent Cursors Anchored Directly on the Portrait (from Reel 00:03 - 00:07) */}
-              <div className="absolute top-28 left-4 z-20 px-2 py-0.5 rounded bg-[#FF4D2E] text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="#FFF" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-                <span>Deploy</span>
-              </div>
+                  {/* High-Resolution Cutout Photo */}
+                  <img
+                    src="/protofoil/assets/nikhil_portrait.png"
+                    alt="Kandi Nikhil Sai Kumar"
+                    className="relative z-10 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-[0_20px_50px_rgba(99,102,241,0.35)]"
+                  />
 
-              <div className="absolute top-40 right-4 z-20 px-2 py-0.5 rounded bg-[#F59E0B] text-black text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="#000" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-                <span>Palette</span>
-              </div>
-
-              <div className="absolute bottom-24 left-6 z-20 px-2 py-0.5 rounded bg-[#EC4899] text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="#FFF" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-                <span>Review</span>
-              </div>
-
-              <div className="absolute bottom-20 right-8 z-20 px-2 py-0.5 rounded bg-[#8B5CF6] text-white text-[9px] font-mono font-bold flex items-center gap-1 shadow-lg border border-white/20">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="#FFF" className="-rotate-12"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-                <span>Comp</span>
+                  {/* Verified Identity Badge Overlay */}
+                  <div className="absolute bottom-4 left-4 right-4 z-20 p-3 rounded-xl bg-[#0b0f19]/85 border border-white/10 backdrop-blur-md flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-white">Kandi Nikhil Sai Kumar</p>
+                      <p className="text-[10px] font-mono text-indigo-400">ANITS B.Tech IT · Batch 2023–2027</p>
+                    </div>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Right Column: Stacked High-Impact Stats */}
-          <div className="lg:col-span-3 flex lg:flex-col justify-between sm:justify-start gap-6 lg:gap-8 pb-4">
-            <div className="border-l-2 border-[#FF4D2E] pl-4">
-              <div className="font-display text-4xl sm:text-5xl font-black text-white leading-none">
-                06<span className="text-[#FF4D2E]">.</span>
-              </div>
-              <p className="font-mono text-xs text-slate-400 mt-1 uppercase tracking-wider">
-                Projects Shipped
-              </p>
-            </div>
-
-            <div className="border-l-2 border-cyan-500 pl-4">
-              <div className="font-display text-4xl sm:text-5xl font-black text-white leading-none">
-                8.74
-              </div>
-              <p className="font-mono text-xs text-slate-400 mt-1 uppercase tracking-wider">
-                ANITS B.Tech CGPA
-              </p>
-            </div>
-
-            <div className="border-l-2 border-emerald-500 pl-4">
-              <div className="font-display text-4xl sm:text-5xl font-black text-white leading-none">
-                100<span className="text-emerald-400">%</span>
-              </div>
-              <p className="font-mono text-xs text-slate-400 mt-1 uppercase tracking-wider">
-                Pytest Pass (32/32)
-              </p>
-            </div>
-
-            <div className="border-l-2 border-purple-500 pl-4">
-              <div className="font-display text-4xl sm:text-5xl font-black text-white leading-none">
-                '26
-              </div>
-              <p className="font-mono text-xs text-slate-400 mt-1 uppercase tracking-wider">
-                Sem Year Lead
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero Bottom Banner Indicator */}
-        <div className="relative z-10 pt-8 pb-4 flex items-center justify-between text-xs font-mono text-slate-500 border-t border-white/5">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>LIVE ENVIRONMENT · ACTIONS &amp; FLOW ACTIVE</span>
-          </div>
-          <a href="#work" className="hover:text-white transition-colors flex items-center gap-1">
-            <span>SCROLL TO WORK</span>
-            <i className="fas fa-chevron-down text-[10px]"></i>
-          </a>
         </div>
       </section>
 
-      {/* Featured Projects Section: "WORK THAT SHIPS." (from Reel 00:09 - 00:19) */}
-      <section id="work" className="relative py-24 px-6 sm:px-12 max-w-7xl mx-auto">
+      {/* Projects Section — Asymmetric Staggered 2x2 Grid with Interactive Card Scaling */}
+      <section id="projects" className="relative z-10 py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/5">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 pb-8 border-b border-white/10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <p className="font-mono text-xs font-bold text-[#FF4D2E] tracking-widest uppercase mb-2">
-              SELECTED WORK
+            <p className="font-mono text-xs font-bold tracking-widest text-indigo-400 uppercase mb-2">
+              FEATURED ENGINEERING
             </p>
-            <h2 className="font-display text-5xl sm:text-7xl font-black tracking-tight leading-none uppercase text-white">
-              WORK THAT <span className="text-[#FF4D2E]">SHIPS.</span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+              Work That <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Ships.</span>
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base mt-3 max-w-xl">
-              Production systems, offline-first mobile agents, and client-side ML. Every project here went from a brief to something real people open and use.
+            <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-xl font-normal">
+              Production architectures, offline-first mobile agents, and client-side ML pipelines verified with automated test suites.
             </p>
           </div>
 
-          {/* Quick Metrics from Reel */}
-          <div className="flex items-center gap-6 font-mono text-xs">
-            <div>
-              <span className="font-display text-2xl sm:text-3xl font-black text-white">06.</span>
-              <p className="text-slate-400 uppercase text-[10px]">Projects Shipped</p>
-            </div>
-            <div className="h-8 w-px bg-white/10" />
-            <div>
-              <span className="font-display text-2xl sm:text-3xl font-black text-white">04.</span>
-              <p className="text-slate-400 uppercase text-[10px]">Sites Live</p>
-            </div>
-            <div className="h-8 w-px bg-white/10" />
-            <div>
-              <span className="font-display text-2xl sm:text-3xl font-black text-emerald-400">32.</span>
-              <p className="text-slate-400 uppercase text-[10px]">Tests Written</p>
-            </div>
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl glass-panel text-xs font-mono">
+            {['ALL', 'AI_SYSTEMS', 'MOBILE_EDGE', 'ML_FINTECH', 'BACKEND'].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveTab(cat)}
+                className={`px-3 py-1.5 rounded-xl transition-all duration-300 font-semibold ${
+                  activeTab === cat
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-glow-indigo'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {cat.replace('_', ' ')}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Project Cards Grid with Typewriter Action Lines */}
+        {/* Asymmetric Staggered Grid */}
         <div className="grid md:grid-cols-2 gap-8">
-          {projects.map((proj) => (
+          {filteredProjects.map((proj, idx) => (
             <div
-              key={proj.num}
-              className="group relative rounded-2xl bg-[#0f0f14] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#FF4D2E]/50 transition-all duration-300 hover:shadow-2xl hover:shadow-[#FF4D2E]/10"
+              key={proj.id}
+              className={`glass-panel glass-panel-hover rounded-3xl p-6 sm:p-8 flex flex-col justify-between border border-white/10 relative overflow-hidden transition-all duration-500 ${
+                idx % 2 === 1 ? 'md:translate-y-4' : ''
+              }`}
             >
-              {/* Card Header (Pure Engineering Card Layout from Reel) */}
-              <div className="p-6 sm:p-8 pb-4 border-b border-white/10 bg-[#0d0d12]">
-                <div className="flex items-start justify-between gap-4">
+              {/* Dynamic Inner Hover Glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+
+              <div>
+                {/* Card Header & Badge */}
+                <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
-                    <span className="font-display text-3xl font-black text-[#FF4D2E]">
+                    <span className="font-mono text-xl sm:text-2xl font-black text-indigo-400">
                       {proj.num}
                     </span>
                     <div>
-                      <h3 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-[#FF4D2E] transition-colors leading-none">
+                      <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                         {proj.title}
                       </h3>
-                      <p className="font-mono text-[11px] text-slate-400 mt-1">
+                      <p className="text-xs font-mono text-slate-400 mt-0.5">
                         {proj.subtitle}
                       </p>
                     </div>
                   </div>
 
-                  <span className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold border backdrop-blur-md uppercase tracking-wider ${proj.tagColor}`}>
-                    {proj.tag}
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 whitespace-nowrap">
+                    {proj.badge}
                   </span>
                 </div>
 
-                <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-[#FF4D2E]">
-                  <span>{proj.domain}</span>
+                {/* Bullets with Staggered Reveal Styling */}
+                <ul className="space-y-2.5 my-6 text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                  {proj.bullets.map((b, bIdx) => (
+                    <li key={bIdx} className="flex items-start gap-2.5">
+                      <span className="text-indigo-400 mt-1 text-xs">◆</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Tech Badges */}
+                <div className="flex flex-wrap gap-1.5 mb-6">
+                  {proj.tech.map((t, tIdx) => (
+                    <span
+                      key={tIdx}
+                      className="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-white/5 text-[11px] font-mono text-slate-300"
+                    >
+                      {t}
+                    </span>
+                  ))}
                 </div>
               </div>
 
-              {/* Card Body: Live Typewritten Lines Powered by AI Agents (Arrow gives the text) */}
-              <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="space-y-3 mb-6">
-                    {proj.lines.map((line, lIdx) => (
-                      <AgenticTextLine
-                        key={lIdx}
-                        agent={line.agent}
-                        fullText={line.text}
-                        dimension={line.dim}
-                        delay={line.delay}
-                        speed={14}
-                        isActive={agentsActive}
-                      />
-                    ))}
-                  </div>
+              {/* Action Buttons with Video Modal Trigger */}
+              <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+                <a
+                  href={proj.liveUrl}
+                  target={proj.liveUrl.startsWith('http') ? "_blank" : "_self"}
+                  rel="noreferrer"
+                  className="ripple flex-1 text-center py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-glow-indigo transition-all duration-300"
+                >
+                  {proj.ctaText}
+                </a>
 
-                  {/* Tech Tags with Deploy Pointer */}
-                  <div className="relative pt-2">
-                    <div className="flex flex-wrap gap-1.5 mb-6">
-                      {proj.tech.map((t, tIdx) => (
-                        <span
-                          key={tIdx}
-                          className="px-2 py-1 rounded bg-white/5 border border-white/5 text-[11px] font-mono text-slate-300"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
-                  <a
-                    href={proj.liveUrl}
-                    target={proj.liveUrl.startsWith('http') ? "_blank" : "_self"}
-                    rel="noreferrer"
-                    className="flex-1 text-center py-2.5 px-4 rounded-xl bg-[#FF4D2E] hover:bg-[#ff3e1d] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md shadow-[#FF4D2E]/20"
+                {proj.videoUrl && (
+                  <button
+                    onClick={() => setActiveModalProject(proj)}
+                    className="ripple py-2.5 px-3.5 rounded-xl glass-panel text-slate-200 hover:text-white border border-white/15 text-xs font-mono flex items-center gap-1.5 transition-all duration-300"
+                    title="Watch High-Def Video Preview"
                   >
-                    {proj.liveText}
+                    <i className="fas fa-play text-[10px] text-indigo-400"></i>
+                    <span>Preview</span>
+                  </button>
+                )}
+
+                {proj.githubUrl && (
+                  <a
+                    href={proj.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ripple py-2.5 px-3.5 rounded-xl glass-panel text-slate-200 hover:text-white border border-white/15 text-xs font-mono transition-all duration-300"
+                    title="View GitHub Repository"
+                  >
+                    <i className="fab fa-github text-sm"></i>
                   </a>
-
-                  {proj.videoMp4 && (
-                    <button
-                      onClick={() => setActiveVideoModal(proj)}
-                      className="py-2.5 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-mono text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5"
-                      title="Watch High-Def Video Preview"
-                    >
-                      <i className="fas fa-play text-[10px] text-cyan-400"></i>
-                      <span>Demo</span>
-                    </button>
-                  )}
-
-                  {proj.githubUrl && (
-                    <a
-                      href={proj.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-mono text-xs uppercase tracking-wider transition-colors"
-                      title="View GitHub Repository"
-                    >
-                      <i className="fab fa-github mr-1.5"></i>
-                      <span>Code ↗</span>
-                    </a>
-                  )}
-                </div>
+                )}
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Video Preview Modal */}
-      {activeVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="relative w-full max-w-3xl rounded-2xl bg-[#0f0f14] border border-white/20 overflow-hidden shadow-2xl">
-            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-[#14141a]">
+      {/* Slide-Up Modal Sheet for Detailed Video / Interactive View */}
+      {activeModalProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
+          <div className="relative w-full max-w-3xl modal-slide-up rounded-3xl glass-panel border border-indigo-500/40 overflow-hidden shadow-2xl">
+            <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-[#0f172a]/90">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D2E]"></span>
-                <span className="font-display text-lg font-bold text-white uppercase">{activeVideoModal.title} — Video Demo</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 animate-pulse"></span>
+                <span className="font-bold text-white text-sm sm:text-base">{activeModalProject.title} — Video Preview</span>
               </div>
               <button
-                onClick={() => setActiveVideoModal(null)}
-                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                onClick={() => setActiveModalProject(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
               >
-                <i className="fas fa-xmark"></i>
+                <i className="fas fa-xmark text-sm"></i>
               </button>
             </div>
+            
             <div className="w-full aspect-video bg-black">
               <video
-                src={activeVideoModal.videoMp4}
+                src={activeModalProject.videoUrl}
+                poster={activeModalProject.posterUrl}
                 controls
                 autoPlay
                 className="w-full h-full object-cover"
               />
             </div>
+
+            <div className="p-4 sm:p-6 bg-[#0b0f19]/90 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-400">
+              <span>Verified 720p 30fps architecture demo</span>
+              <a
+                href={activeModalProject.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-indigo-400 hover:text-indigo-300 font-bold"
+              >
+                Open Full System ↗
+              </a>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Stack I Ship With & Built Fast Shipped Real (from Reel 00:20 - 00:27) */}
-      <section id="stack" className="relative py-20 bg-[#0a0a0e] border-y border-white/10 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 mb-8 flex items-end justify-between">
-          <div>
-            <p className="font-mono text-xs font-bold text-[#FF4D2E] tracking-widest uppercase">
-              TOOLING &amp; FOUNDATIONS
-            </p>
-            <h2 className="font-display text-4xl sm:text-5xl font-black uppercase text-white mt-1">
-              STACK I SHIP WITH<span className="text-[#FF4D2E]">.</span>
-            </h2>
-          </div>
-          <p className="font-mono text-xs text-slate-400 hidden sm:block uppercase">
-            29 TOOLS · TESTED TO DEPLOY
+      {/* Tooling Marquee & Authentic Internship Record */}
+      <section id="experience" className="relative z-10 py-20 bg-[#070a12]/80 border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 mb-8">
+          <p className="font-mono text-xs font-bold tracking-widest text-indigo-400 uppercase">
+            TOOLING &amp; FOUNDATIONS
           </p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
+            Stack I Ship With<span className="text-indigo-400">.</span>
+          </h2>
         </div>
 
-        {/* Infinite Marquee Ribbon */}
+        {/* Infinite Tooling Ribbon */}
         <div className="relative w-full overflow-hidden py-4 border-y border-white/5">
-          <div className="animate-marquee-infinite flex items-center gap-8 whitespace-nowrap font-mono text-sm sm:text-base text-slate-300 font-semibold">
-            <span>FastAPI</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>C++</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Java</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>pnpm</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Turborepo</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Git</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>GitHub</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Postman</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Python 3.12</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>PyTorch</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Scikit-learn</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>React 19</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Three.js (WebGL)</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Flutter</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Docker</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>SQLite</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>ChromaDB</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Tailscale &amp; WireGuard</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Pytest (32/32 Pass)</span>
-            <span className="text-[#FF4D2E]">✦</span>
-
-            {/* Repeat for seamless loop */}
-            <span>FastAPI</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>C++</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Java</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>pnpm</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Turborepo</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Git</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>GitHub</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Postman</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Python 3.12</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>PyTorch</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Scikit-learn</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>React 19</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Three.js (WebGL)</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Flutter</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Docker</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>SQLite</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>ChromaDB</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Tailscale &amp; WireGuard</span>
-            <span className="text-[#FF4D2E]">✦</span>
-            <span>Pytest (32/32 Pass)</span>
-            <span className="text-[#FF4D2E]">✦</span>
+          <div className="animate-marquee-infinite flex items-center gap-8 whitespace-nowrap font-mono text-sm text-slate-300">
+            {skills.map((s, idx) => (
+              <span key={idx} className="flex items-center gap-8">
+                <span>{s}</span>
+                <span className="text-indigo-400 text-xs">✦</span>
+              </span>
+            ))}
+            {/* Duplicate for seamless infinite marquee loop */}
+            {skills.map((s, idx) => (
+              <span key={`dup-${idx}`} className="flex items-center gap-8">
+                <span>{s}</span>
+                <span className="text-indigo-400 text-xs">✦</span>
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Built Fast, Shipped Real Metric & Roles (from Reel 00:23) */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 mt-16 grid lg:grid-cols-12 gap-10 items-center">
-          
-          {/* Left Column: Big Typographic Stats Block */}
-          <div className="lg:col-span-5 space-y-4">
-            <p className="font-mono text-xs font-bold text-[#FF4D2E] tracking-widest uppercase">
-              TRACK RECORD
-            </p>
-            <h3 className="font-display text-5xl sm:text-7xl font-black uppercase text-white leading-none">
-              BUILT FAST.<br />
-              <span className="text-[#FF4D2E]">SHIPPED REAL.</span>
-            </h3>
-            <div className="font-display text-6xl sm:text-7xl font-black text-white">
-              32<span className="text-[#FF4D2E]">.</span>
-            </div>
-            <p className="font-mono text-xs text-slate-400 max-w-sm">
-              Automated unit &amp; integration tests passing in RecoverX with 100% pass rate in 0.85s.
-            </p>
-          </div>
-
-          {/* Right Column: Roles & Experience List with Bounding Boxes */}
-          <div className="lg:col-span-7 space-y-4">
+        {/* Authentic Experience Timeline Cards */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 mt-16">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {internships.map((exp, idx) => (
-              <div
-                key={idx}
-                className="relative p-4 rounded-xl bg-[#121217] border border-white/10 hover:border-[#FF4D2E]/40 transition-colors"
-              >
-                {/* Figma Corner Handles */}
-                <div className="absolute -top-1 -left-1 w-2 h-2 bg-white border border-[#FF4D2E]/60" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-white border border-[#FF4D2E]/60" />
-                <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-white border border-[#FF4D2E]/60" />
-                <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-white border border-[#FF4D2E]/60" />
-
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-[#FF4D2E]/20 text-[#FF4D2E]">
-                      {exp.period}
-                    </span>
-                    <h4 className="text-base font-bold text-white">{exp.role}</h4>
-                  </div>
-                  <span className="font-mono text-xs text-[#FF4D2E] font-bold">{exp.company}</span>
+              <div key={idx} className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-mono text-indigo-400 font-semibold">{exp.period}</span>
+                  <h4 className="text-lg font-bold text-white mt-1">{exp.company}</h4>
+                  <p className="text-xs text-purple-300 font-medium mb-3">{exp.role}</p>
+                  <p className="text-xs text-slate-300 leading-relaxed font-normal">{exp.desc}</p>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed pl-1">{exp.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* About Section: "NOT JUST CODE. CODE THAT SHIPS." (from Reel 00:28 - 00:35) */}
-      <section id="about" className="relative py-24 px-6 sm:px-12 max-w-7xl mx-auto">
-        <div className="mb-14">
-          <p className="font-mono text-xs font-bold text-[#FF4D2E] tracking-widest uppercase mb-2">
-            ABOUT
-          </p>
-          <h2 className="font-display text-5xl sm:text-7xl font-black uppercase text-white leading-tight">
-            NOT JUST CODE.<br />
-            <span className="text-[#FF4D2E]">CODE THAT SHIPS.</span>
-          </h2>
-        </div>
-
-        {/* Two-Column Bio Narrative */}
-        <div className="grid lg:grid-cols-12 gap-10 items-start mb-16">
-          <div className="lg:col-span-6 space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed">
-            <p>
-              I am an Information Technology student at Anil Neerukonda Institute of Technology &amp; Sciences 
-              (ANITS, Visakhapatnam, CGPA: <b>8.74 / 10</b>) with real software engineering internship experience 
-              across <b>Labmentix</b>, <b>NullClass</b>, and <b>SkillDzire</b>.
-            </p>
-            <p>
-              Rather than building fragile prototypes, I focus on systems that run under real constraints: 
-              offline-first synchronization when network drops, hardware-backed biometric encryption via Android Keystore, 
-              and client-side ML scoring with sub-100ms response times.
-            </p>
-          </div>
-
-          <div className="lg:col-span-6 space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed">
-            <p>
-              Most days that means Python 3.12, FastAPI, and PyTorch for backend intelligence and ML underwriting; 
-              React 19 and Three.js for 60 FPS interfaces; and automated Pytest test suites wherever logic could quietly break.
-            </p>
-            <p>
-              I actively leverage modern agentic coding workflows to rapidly iterate, but enforce strict human engineering 
-              judgment to guarantee reliability, security, and algorithmic correctness.
-            </p>
-          </div>
-        </div>
-
-        {/* Education, Skills Table & Principles Grid */}
-        <div className="grid lg:grid-cols-12 gap-10 items-start">
-          
-          {/* Left: Detailed Skills Hierarchy */}
-          <div className="lg:col-span-7 space-y-4 p-6 sm:p-8 rounded-2xl bg-[#0f0f14] border border-white/10">
-            <h3 className="font-display text-2xl font-bold uppercase text-white mb-4">
-              EDUCATION &amp; SKILLS
-            </h3>
-
-            <div className="pb-4 border-b border-white/10">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-white text-base">B.Tech · Information Technology</span>
-                <span className="font-mono text-xs text-[#FF4D2E] font-bold">CGPA: 8.74 / 10</span>
-              </div>
-              <p className="text-xs text-slate-400 font-mono mt-1">
-                Anil Neerukonda Institute of Technology &amp; Sciences (ANITS) · 2023 – 2027
-              </p>
-            </div>
-
-            <div className="space-y-3 pt-2">
-              {skillsList.map((s, idx) => (
-                <div key={idx} className="grid sm:grid-cols-12 gap-2 text-xs">
-                  <span className="sm:col-span-4 font-mono font-bold text-slate-400 uppercase">
-                    {s.category}
-                  </span>
-                  <span className="sm:col-span-8 text-slate-200">
-                    {s.items}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: Core Engineering Principles + Signature Quote Card with Agent Typing */}
-          <div className="lg:col-span-5 space-y-4">
-            <AgenticTextLine
-              agent={AGENTS.qa}
-              fullText="01 Test what can silently break — Pricing, validation, state machines, encryption. 32 automated tests prove RecoverX never fails silently."
-              dimension="420 × 40"
-              delay={200}
-              speed={15}
-              bulletPrefix=""
-            />
-            <AgenticTextLine
-              agent={AGENTS.comp}
-              fullText="02 AI in the loop, human in command — LLMs accelerate prototyping; deterministic constraints and human review ship production."
-              dimension="420 × 40"
-              delay={800}
-              speed={15}
-              bulletPrefix=""
-            />
-            <AgenticTextLine
-              agent={AGENTS.deploy}
-              fullText="03 Ship, then polish — Deploy live endpoints on GitHub Pages first, then refine under real latency constraints."
-              dimension="420 × 40"
-              delay={1400}
-              speed={15}
-              bulletPrefix=""
-            />
-            <AgenticTextLine
-              agent={AGENTS.palette}
-              fullText="04 Deep fundamentals over hype — Strong Data Structures & Algorithms, OS concepts, and networked systems over ephemeral tool trends."
-              dimension="420 × 40"
-              delay={2000}
-              speed={15}
-              bulletPrefix=""
-            />
-
-            {/* Signature Reel Quote Card (Exact from Reel 00:33) */}
-            <div className="relative p-6 rounded-2xl bg-gradient-to-br from-[#FF4D2E] to-[#bd240a] text-white shadow-xl mt-6">
-              {/* Figma Corner Handles */}
-              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border border-[#FF4D2E]" />
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border border-[#FF4D2E]" />
-              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border border-[#FF4D2E]" />
-              <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border border-[#FF4D2E]" />
-
-              <div className="absolute -top-3 left-4 px-2 py-0.5 rounded bg-black text-white text-[10px] font-mono font-bold flex items-center gap-1.5 shadow">
-                <i className="fas fa-quote-left text-[9px] text-[#FF4D2E]"></i>
-                <span>Review · verified</span>
-              </div>
-
-              <p className="font-display text-2xl sm:text-3xl font-black uppercase leading-tight tracking-tight">
-                SHIP THE FEATURE, THEN WRITE THE TEST THAT PROVES IT CAN'T SILENTLY BREAK.
-              </p>
-              <p className="font-mono text-xs font-bold mt-4 text-white/90 uppercase tracking-widest">
-                — Nikhil Sai Kumar Kandi
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section: "LET'S WORK TOGETHER." (from Reel 00:36 - 00:39) */}
-      <section id="contact" className="relative py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/10">
+      {/* Contact & Professional Connect */}
+      <section id="contact" className="relative z-10 py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/5">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           
-          {/* Left Column: Heading & Live Typed Text */}
           <div className="lg:col-span-6 space-y-6">
-            <p className="font-mono text-xs font-bold text-[#FF4D2E] tracking-widest uppercase">
-              CONTACT
+            <p className="font-mono text-xs font-bold tracking-widest text-indigo-400 uppercase">
+              PROFESSIONAL CONNECT
             </p>
-            <h2 className="font-display text-5xl sm:text-7xl font-black uppercase text-white leading-none">
-              LET'S WORK<br />
-              <span className="text-[#FF4D2E]">TOGETHER.</span>
+            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight">
+              Let's Build <br />
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Software That Ships.
+              </span>
             </h2>
-
-            {/* Live Typing Pitch Box from Reel Frame 38 */}
-            <AgenticTextLine
-              agent={AGENTS.connect}
-              fullText="Open to Software Engineering roles, AI System Architecture, and Machine Learning engineering opportunities. Let's build reliable software that ships."
-              dimension="117 × 46"
-              delay={400}
-              speed={16}
-              bulletPrefix=""
-            />
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-md font-normal">
+              Available for Software Engineering, AI Systems Architecture, and Machine Learning opportunities.
+            </p>
 
             <div className="space-y-3 font-mono text-xs pt-2">
               <a
                 href="mailto:nikhilsaikumarkandi@gmail.com"
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-colors"
+                className="ripple flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200 hover:text-white hover:border-indigo-500/40 transition-all"
               >
-                <i className="fas fa-envelope text-[#FF4D2E] text-base w-5 text-center"></i>
+                <i className="fas fa-envelope text-indigo-400 text-base w-5 text-center"></i>
                 <span>nikhilsaikumarkandi@gmail.com</span>
               </a>
 
@@ -1167,9 +674,9 @@ export default function Portfolio() {
                 href="https://linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359"
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-colors"
+                className="ripple flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200 hover:text-white hover:border-indigo-500/40 transition-all"
               >
-                <i className="fab fa-linkedin text-[#FF4D2E] text-base w-5 text-center"></i>
+                <i className="fab fa-linkedin text-indigo-400 text-base w-5 text-center"></i>
                 <span>linkedin.com/in/nikhil-sai-kumar-kandi-03a33b359 ↗</span>
               </a>
 
@@ -1177,90 +684,47 @@ export default function Portfolio() {
                 href="https://github.com/Nikhil1456-12"
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-colors"
+                className="ripple flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200 hover:text-white hover:border-indigo-500/40 transition-all"
               >
-                <i className="fab fa-github text-[#FF4D2E] text-base w-5 text-center"></i>
+                <i className="fab fa-github text-indigo-400 text-base w-5 text-center"></i>
                 <span>github.com/Nikhil1456-12 ↗</span>
               </a>
 
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 text-slate-200">
-                <i className="fas fa-phone text-[#FF4D2E] text-base w-5 text-center"></i>
+              <div className="flex items-center gap-3 p-3.5 rounded-xl glass-panel text-slate-200">
+                <i className="fas fa-phone text-indigo-400 text-base w-5 text-center"></i>
                 <span>+91 8309322695</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Giant Sign-off with Multi-Cursor Cluster from Reel 00:38 */}
-          <div className="lg:col-span-6 flex flex-col justify-center items-start lg:items-end text-left lg:text-right relative">
-            
-            {/* Multiplayer Cursor Cluster hovering around the sign-off */}
-            <div className="relative inline-block">
-              <h3 className="font-display text-6xl sm:text-8xl font-black uppercase leading-none tracking-tight">
-                SHIP IT<br />
-                <span className="text-[#FF4D2E]">FOR REAL.</span>
+          <div className="lg:col-span-6 flex flex-col justify-center items-start lg:items-end text-left lg:text-right">
+            <div className="glass-panel p-8 rounded-3xl border border-indigo-500/30 shadow-glow-indigo max-w-md">
+              <span className="font-mono text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                VERIFIED CREDENTIALS
+              </span>
+              <h3 className="text-2xl font-bold text-white mt-2">
+                Anil Neerukonda Institute of Technology &amp; Sciences
               </h3>
-
-              {/* Cursor Swarm Clustered on Corner (Frame 38 / 00:38) */}
-              <div className="absolute -bottom-6 -right-6 flex flex-col items-end gap-1 pointer-events-none select-none">
-                <div className="flex items-center gap-1">
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#EC4899] text-white shadow">Motion</span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#06B6D4] text-black shadow">Index</span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#10B981] text-black shadow">QA</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#FF4D2E] text-white shadow">Deploy</span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#F59E0B] text-black shadow">Layout</span>
-                  <div className="w-6 h-6 rounded-full bg-[#FF4D2E] text-white flex items-center justify-center text-[10px] font-bold shadow-lg animate-bounce">
-                    🚀
-                  </div>
-                </div>
+              <p className="text-xs font-mono text-slate-300 mt-2">
+                B.Tech in Information Technology (2023–2027)
+              </p>
+              <p className="text-xs font-mono text-purple-400 font-bold mt-1">
+                Cumulative Grade Point Average: 8.74 / 10
+              </p>
+              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
+                <span>Visakhapatnam, AP, India</span>
+                <span className="text-emerald-400 font-bold">● Active Student</span>
               </div>
             </div>
-
-            <p className="font-mono text-xs text-slate-500 mt-6 tracking-widest uppercase">
-              Zero Hallucinations · Production Code · Visakhapatnam, IN
-            </p>
           </div>
         </div>
       </section>
 
-      {/* Floating Bottom Dock: "12 AGENTS LIVE" from the Reel */}
-      <aside aria-label="Live swarm controller" className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50">
-        <div className="flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-full bg-[#121217]/90 border border-white/15 backdrop-blur-xl shadow-2xl text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 agent-pulse"></span>
-            <span className="text-white font-bold tracking-wider">12 AGENTS LIVE</span>
-          </div>
-
-          <div className="h-4 w-px bg-white/20" />
-
-          <button
-            onClick={handleReplayBuild}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 transition-colors"
-            title="Replay Agent Typing & Build Flow"
-          >
-            <i className="fas fa-rotate text-cyan-400 text-[10px]"></i>
-            <span className="hidden sm:inline">Replay Build</span>
-          </button>
-
-          <button
-            onClick={() => setAgentsActive(!agentsActive)}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
-              agentsActive 
-                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' 
-                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'
-            }`}
-          >
-            {agentsActive ? '⏸ Pause' : '▶ Resume'}
-          </button>
-        </div>
-      </aside>
-
-      {/* Footer */}
-      <footer className="py-10 text-center text-xs font-mono border-t border-white/5 text-slate-600 bg-[#060608]">
-        <p>© 2026 Nikhil Sai Kumar Kandi. All rights reserved.</p>
-        <p className="mt-1 text-slate-500">
-          Crafted with React 19, Tailwind CSS &amp; Vite · Production Hosted on GitHub Pages
+      {/* Minimalist Frosted Footer */}
+      <footer className="py-10 text-center text-xs font-mono border-t border-white/5 text-slate-500 bg-[#070a12]/90">
+        <p>© 2026 Kandi Nikhil Sai Kumar. All rights reserved.</p>
+        <p className="mt-1 text-slate-600">
+          Anti-Gravity Plus Flow · React 19, Tailwind CSS &amp; Vite · Production Hosted on GitHub Pages
         </p>
       </footer>
     </div>
